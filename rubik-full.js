@@ -416,46 +416,50 @@ displayCube(cube);
 // displayCube(cube2);
 
 const act = (cube, showSteps, steps) => {
-	let c = cloneCube(cube);
+	// console.log(Array.from(steps));
 	for (let i = 0; i < steps.length; ++i) {
 		let mov = steps[i];
 		if (i + 1 < steps.length && steps[i + 1] === "'") {
 			++i;
 			mov += '_';
 		}
-		movements[mov](c);
+		movements[mov](cube);
 		if (showSteps) {
 			console.log('Movement: ' + mov);
-			displayCube(c);
+			displayCube(cube);
 		} else if (i === steps.length - 1) {
 			console.log('Movements: ' + steps);
-			displayCube(c);
+			displayCube(cube);
 		}
 	}
 };
 
-const { count } = require('console');
 // act(cube, true, "RUR'URUUR'");
 
 const readline = require('readline');
 
 readline.emitKeypressEvents(process.stdin);
-process.stdin.setRawMode(true);
+if (process.stdin.isTTY)
+	process.stdin.setRawMode(true);
 
 let c = cloneCube(cube);
 const history = [cloneCube(c)];
 let wasPrime = false;
 let editMode = false;
+let typingMode = false;
 
 process.stdin.on('keypress', (str, key) => {
-  // console.log(key.name || str, str || key.name, str, key);
+	if (typingMode)
+		return;
 	// esc, CTRL+C
 	if (key.name === 'escape' || key.sequence === '\x03')
 		process.exit();
 
 	let keyName = key.name || str;
-	if (key.shift)
+	if (key.shift && keyName.length === 1)
 		keyName = keyName.toUpperCase();
+
+  // console.log(keyName, str, key);
 
 	if (!editMode)
 		processKey(keyName, key.shift);
@@ -498,6 +502,32 @@ const processKey = (keyName, shift) => {
 		case 'f2':
 			editMode = true;
 			processKeyInEdit(undefined, false, false);
+			break;
+
+		case 'f4':
+			if (process.stdin.isTTY)
+				process.stdin.setRawMode(false);
+			typingMode = true;
+
+			const rl = readline.createInterface({
+				input: process.stdin,
+				output: process.stdout,
+				terminal: false,
+			});
+
+			rl.question('Type movements: ', answer => {
+				act(c, false, answer);
+				history.push(cloneCube(c));
+				// TODO: 1. either of close() or pause() stops the application
+				// rl.close();
+				// rl.pause();
+				// TODO: 2. moving readline.createInterface() out of this method causes that user's answer contains "\x1B[[D"
+
+				if (process.stdin.isTTY)
+					process.stdin.setRawMode(true);
+				typingMode = false;
+			});
+
 			break;
 
 		case '=':
