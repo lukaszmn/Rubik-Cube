@@ -164,6 +164,51 @@ const displayCube = (cube, cursorX, cursorY) => {
 		return colorize(lines, data);
 	};
 
+	const get3dCube = () => {
+		/*
+		*       +----+----+----+
+		*      / U  / U  / U  /|
+		*     +----+----+----+ |
+		*    / U  / U  / U  /|R+
+		*   +----+----+----+ |/|
+		*  / U  / U  / U  /|R+ |
+		* +----+----+----+ |/|R+
+		* |    |    |    |R+ |/|
+		* | F  | F  | F  |/|R+ |
+		* +----+----+----+ |/|R+
+		* |    |    |    |R+ |/
+		* | F  | F  | F  |/|R+
+		* +----+----+----+ |/
+		* |    |    |    |R+
+		* | F  | F  | F  |/
+		* +----+----+----+
+		*/
+		const lines = [
+			'      +-.-.-.-.+-.-.-.-.+-.-.-.-....+',
+			'     /U1U1U1U1/U2U2U2U2/U3U3U3U3/...|',
+			'    +-.-.-.-.+-.-.-.-.+-.-.-.-...+. |',
+			'   /U4U4U4U4/U5U5U5U5/U6U6U6U6../|R3+',
+			'  +-.-.-.-.+-.-.-.-.+-.-.-.-..+ |./.|',
+			' /U7U7U7U7/U8U8U8U8/U9U9U9U9./|R2+ .|',
+			'+-.-.-.-.+-.-.-.-.+-.-.-.-.+ |./|R6+',
+			'|F1F1F1F1|F2F2F2F2|F3F3F3F3|R1+ .|./|',
+			'|F1F1F1F1|F2F2F2F2|F3F3F3F3|./|R5+ .|',
+			'+-.-.-.-.+-.-.-.-.+-.-.-.-.| .|./|R9+',
+			'|F4F4F4F4|F5F5F5F5|F6F6F6F6|R4+ .|./',
+			'|F4F4F4F4|F5F5F5F5|F6F6F6F6|./|R8+',
+			'+-.-.-.-.+-.-.-.-.+-.-.-.-.+ .|./',
+			'|F7F7F7F7|F8F8F8F8|F9F9F9F9|R7+',
+			'|F7F7F7F7|F8F8F8F8|F9F9F9F9|./',
+			'+-.-.-.-.+-.-.-.-.+-.-.-.-.+',
+		].map(s => s.replace(/\./g, ''));
+		const data = {
+			U: toLine(cube.U),
+			R: toLine(cube.R),
+			F: toLine(cube.F),
+		};
+		return colorizeWithDigits(lines, data);
+	};
+
 	const getSection = (title, face1, face2, face3, face4, face5) => {
 		const lines = [
 			(title + ':').padEnd(13, ' '),
@@ -218,6 +263,17 @@ const displayCube = (cube, cursorX, cursorY) => {
 		return s;
 	});
 
+	const colorizeWithDigits = (lines, data) => lines.map(line => {
+		for (const ch in data) {
+			for (let digit = 1; digit <= 9; ++digit) {
+				const col = data[ch][digit - 1];
+				const color = colors[col] || 'Q';
+				line = line.replace(new RegExp(ch + digit, 'g'), color.replace('Q', col));
+			}
+		}
+		return line;
+	});
+
 	const join = (...liness) => {
 		const res = liness[0].map(_ => '');
 		liness.forEach(lines => {
@@ -230,7 +286,7 @@ const displayCube = (cube, cursorX, cursorY) => {
 		return res;
 	};
 
-	let lines = join(getCube(), getLeft(), getFront(), getRight(), getBack(), getUp(), getDown(), getExtraCube());
+	let lines = join(getCube(), getLeft(), getFront(), getRight(), getBack(), getUp(), getDown(), getExtraCube(), get3dCube());
 
 	for (const line of lines)
 		console.log(line);
