@@ -79,7 +79,8 @@ const colors = {
 	B: '\033[94mQ\033[37m',
 	R: '\033[91mQ\033[37m',
 	G: '\033[92mQ\033[37m',
-	O: '\033[95mQ\033[37m',
+	O: '\033[38;5;214mQ\033[37m',
+	W: '\033[97mQ\033[37m',
 };
 const highlight = '\033[46mQ\033[49m';
 
@@ -104,6 +105,7 @@ const displayCube = (cube, cursorX, cursorY) => {
 			'     │DDD│        ',
 			'     │DDD│        ',
 			'     └───┘        ',
+			'                  ',
 			'                  ',
 		];
 		const data = {
@@ -139,6 +141,7 @@ const displayCube = (cube, cursorX, cursorY) => {
 			'    X│DDD│X        ',
 			'     └───┘         ',
 			'      XXX          ',
+			'                   ',
 		];
 		const data = {
 			U: toLine(cube.U),
@@ -184,27 +187,31 @@ const displayCube = (cube, cursorX, cursorY) => {
 		* +----+----+----+
 		*/
 		const lines = [
-			'      +-.-.-.-.+-.-.-.-.+-.-.-.-....+',
-			'     /U1U1U1U1/U2U2U2U2/U3U3U3U3/...|',
-			'    +-.-.-.-.+-.-.-.-.+-.-.-.-...+. |',
-			'   /U4U4U4U4/U5U5U5U5/U6U6U6U6../|R3+',
-			'  +-.-.-.-.+-.-.-.-.+-.-.-.-..+ |./.|',
-			' /U7U7U7U7/U8U8U8U8/U9U9U9U9./|R2+ .|',
-			'+-.-.-.-.+-.-.-.-.+-.-.-.-.+ |./|R6+',
-			'|F1F1F1F1|F2F2F2F2|F3F3F3F3|R1+ .|./|',
-			'|F1F1F1F1|F2F2F2F2|F3F3F3F3|./|R5+ .|',
-			'+-.-.-.-.+-.-.-.-.+-.-.-.-.| .|./|R9+',
-			'|F4F4F4F4|F5F5F5F5|F6F6F6F6|R4+ .|./',
-			'|F4F4F4F4|F5F5F5F5|F6F6F6F6|./|R8+',
-			'+-.-.-.-.+-.-.-.-.+-.-.-.-.+ .|./',
-			'|F7F7F7F7|F8F8F8F8|F9F9F9F9|R7+',
-			'|F7F7F7F7|F8F8F8F8|F9F9F9F9|./',
-			'+-.-.-.-.+-.-.-.-.+-.-.-.-.+',
+			' .       +-.-.-.-.+-.-.-.-.+-.-.-.-....+',
+			' .      /U1U1U1U1/U2U2U2U2/U3U3U3U3/...|',
+			' .     +-.-.-.-.+-.-.-.-.+-.-.-.-...+. |',
+			' .    /U4U4U4U4/U5U5U5U5/U6U6U6U6../|R3+',
+			' .   +-.-.-.-.+-.-.-.-.+-.-.-.-..+ |./.|',
+			' .  /U7U7U7U7/U8U8U8U8/U9U9U9U9./|R2+ .|',
+			' . +-.-.-.-.+-.-.-.-.+-.-.-.-.+ |./|R6+',
+			'L3 |F1F1F1F1|F2F2F2F2|F3F3F3F3|R1+ .|./|',
+			'L3 |F1F1F1F1|F2F2F2F2|F3F3F3F3|./|R5+ .|',
+			'  +-.-.-.-.+-.-.-.-.+-.-.-.-.| .|./|R9+',
+			'L6 |F4F4F4F4|F5F5F5F5|F6F6F6F6|R4+ .|./',
+			'L6 |F4F4F4F4|F5F5F5F5|F6F6F6F6|./|R8+',
+			' . +-.-.-.-.+-.-.-.-.+-.-.-.-.+ .|./',
+			'L9 |F7F7F7F7|F8F8F8F8|F9F9F9F9|R7+',
+			'L9 |F7F7F7F7|F8F8F8F8|F9F9F9F9|./',
+			' . +-.-.-.-.+-.-.-.-.+-.-.-.-.+',
+			' .  D1D1D1D1 D2D2D2D2 D3D3D3D3 ',
 		].map(s => s.replace(/\./g, ''));
 		const data = {
 			U: toLine(cube.U),
 			R: toLine(cube.R),
 			F: toLine(cube.F),
+			L: toLine(cube.L),
+			B: toLine(cube.B),
+			D: toLine(cube.D),
 		};
 		return colorizeWithDigits(lines, data);
 	};
@@ -226,6 +233,7 @@ const displayCube = (cube, cursorX, cursorY) => {
 			'    │555│    ',
 			'    │555│    ',
 			'    └───┘    ',
+			'             ',
 			'             ',
 		];
 		const data = {
@@ -287,6 +295,11 @@ const displayCube = (cube, cursorX, cursorY) => {
 	};
 
 	let lines = join(getCube(), getLeft(), getFront(), getRight(), getBack(), getUp(), getDown(), getExtraCube(), get3dCube());
+
+	// https://en.wikipedia.org/wiki/ANSI_escape_code#CSI_(Control_Sequence_Introducer)_sequences
+	const clearScreen = '\033[2J';
+	const move100LinesUp = '\033[91' + '100' + 'A';
+	console.log(clearScreen + move100LinesUp);
 
 	for (const line of lines)
 		console.log(line);
