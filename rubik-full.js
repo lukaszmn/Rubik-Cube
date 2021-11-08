@@ -84,6 +84,29 @@ const colors = {
 };
 const highlight = '\033[46mQ\033[49m';
 
+const clearScreen = () => {
+	// https://en.wikipedia.org/wiki/ANSI_escape_code#CSI_(Control_Sequence_Introducer)_sequences
+	const clearScreen_ = '\033[2J';
+	console.log(clearScreen_);
+	needsClearScreen = false;
+};
+
+const clear = msg => {
+	if (needsClearScreen)
+		clearScreen();
+
+	// https://en.wikipedia.org/wiki/ANSI_escape_code#CSI_(Control_Sequence_Introducer)_sequences
+	const move100LinesUp = '\033[91' + '10' + 'A';
+	console.log(move100LinesUp);
+	msg = msg ?? 'F1 - help';
+	const width = process.stdout.columns - 1;
+	const spaces = ' '.repeat(width);
+	msg = (msg + spaces).slice(0, width);
+	console.log(msg);
+};
+
+let needsClearScreen = true;
+
 const displayCube = (cube, cursorX, cursorY) => {
 
 	const toLine = arr => arr.reduce((prev, curr) => [...prev, ...curr], []);
@@ -296,11 +319,6 @@ const displayCube = (cube, cursorX, cursorY) => {
 
 	let lines = join(getCube(), getLeft(), getFront(), getRight(), getBack(), getUp(), getDown(), getExtraCube(), get3dCube());
 
-	// https://en.wikipedia.org/wiki/ANSI_escape_code#CSI_(Control_Sequence_Introducer)_sequences
-	const clearScreen = '\033[2J';
-	const move100LinesUp = '\033[91' + '100' + 'A';
-	console.log(clearScreen + move100LinesUp);
-
 	for (const line of lines)
 		console.log(line);
 
@@ -471,6 +489,7 @@ const validate = cube => {
 let cube = readCube(targetCube);
 // let cube = readCube(markedCube);
 
+clear();
 displayCube(cube);
 
 // for (const movement in movements) {
@@ -494,10 +513,10 @@ const act = (cube, showSteps, steps) => {
 		}
 		movements[mov](cube);
 		if (showSteps) {
-			console.log('Movement: ' + mov);
+			clear('Movement: ' + mov);
 			displayCube(cube);
 		} else if (i === steps.length - 1) {
-			console.log('Movements: ' + steps);
+			clear('Movements: ' + steps);
 			displayCube(cube);
 		}
 	}
@@ -550,7 +569,7 @@ const processKey = (keyName, shift) => {
 			if (history.length > 1) {
 				history.pop();
 				c = cloneCube(history[history.length - 1]);
-				console.log('Undo');
+				clear('Undo');
 				displayCube(c);
 			}
 			break;
@@ -566,10 +585,12 @@ const processKey = (keyName, shift) => {
 			console.log('escape or CTRL+C - exit');
 			console.log('Movements: UDLRFB udlrfb MES xyz');
 			console.log("Press 'U to create movement U'");
+			needsClearScreen = true;
 			break;
 
 		case 'f2':
 			editMode = true;
+			needsClearScreen = true;
 			processKeyInEdit(undefined, false, false);
 			break;
 
@@ -601,7 +622,7 @@ const processKey = (keyName, shift) => {
 
 		case '=':
 			c = readCube(targetCube);
-			console.log('Reset');
+			clear('Reset');
 			history.push(cloneCube(c));
 			displayCube(c);
 			break;
@@ -610,7 +631,7 @@ const processKey = (keyName, shift) => {
 			// const cube = readCube(targetCube);
 			const scrambleRes = scramble(c, 1);
 			c = scrambleRes.cube;
-			console.log('Scramble: ' + scrambleRes.path);
+			clear('Scramble: ' + scrambleRes.path);
 			history.push(cloneCube(c));
 			displayCube(c);
 			break;
@@ -618,7 +639,7 @@ const processKey = (keyName, shift) => {
 
 	const mov = movements[movKey];
 	if (mov) {
-		console.log('Movement: ' + movKey.replace('_', "'"));
+		clear('Movement: ' + movKey.replace('_', "'"));
 		mov(c);
 		displayCube(c);
 		history.push(cloneCube(c));
@@ -691,13 +712,15 @@ const processKeyInEdit = (keyName, shift, ctrl) => {
 
 		case 'f2':
 			editMode = false;
+			needsClearScreen = true;
+			clear();
 			displayCube(c);
 			history.push(cloneCube(c));
 			return;
 
 		case '=':
 			c = readCube(targetCube);
-			console.log('Reset');
+			clear('Reset');
 			history.push(cloneCube(c));
 			displayCube(c);
 			break;
@@ -719,7 +742,7 @@ const processKeyInEdit = (keyName, shift, ctrl) => {
 			break;
 	}
 
-	console.log('E D I T   M O D E');
+	clear('E D I T   M O D E');
 	console.log('F2 - exit edit, arrow keys - move cursor, arrows + shift - move cube, = - reset cube');
 
 	const res = validate(c);
