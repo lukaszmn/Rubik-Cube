@@ -91,6 +91,13 @@ const clearScreen = () => {
 	needsClearScreen = false;
 };
 
+const logAndClearLine = s => {
+	const width = process.stdout.columns - 1;
+	const spaces = ' '.repeat(width);
+	s = (s + spaces).slice(0, width);
+	console.log(s);
+};
+
 const clear = msg => {
 	if (needsClearScreen)
 		clearScreen();
@@ -99,10 +106,7 @@ const clear = msg => {
 	const move100LinesUp = '\033[91' + '10' + 'A';
 	console.log(move100LinesUp);
 	msg = msg ?? 'F1 - help';
-	const width = process.stdout.columns - 1;
-	const spaces = ' '.repeat(width);
-	msg = (msg + spaces).slice(0, width);
-	console.log(msg);
+	logAndClearLine(msg);
 };
 
 let needsClearScreen = true;
@@ -322,6 +326,7 @@ const displayCube = (cube, cursorX, cursorY) => {
 	for (const line of lines)
 		console.log(line);
 
+	console.log("  ↑x ↓x'  ←y →y'   rotate F: SHIFT+ ←z' →z");
 	console.log();
 };
 
@@ -478,7 +483,7 @@ const validate = cube => {
 	}
 
 	for (const key in counts) {
-		if (key !== '-' && counts[key] !== 9)
+		if (key !== '-' && counts[key] > 9)
 			return { valid: false, counts };
 	}
 	return { valid: true, counts };
@@ -605,7 +610,7 @@ const processKey = (keyName, shift) => {
 				terminal: false,
 			});
 
-			rl.question('Type movements: ', answer => {
+			rl.question('Type movements (UDLRFB udlrfb MES xyz): ', answer => {
 				act(c, false, answer);
 				history.push(cloneCube(c));
 				// TODO: 1. either of close() or pause() stops the application
@@ -616,6 +621,7 @@ const processKey = (keyName, shift) => {
 				if (process.stdin.isTTY)
 					process.stdin.setRawMode(true);
 				typingMode = false;
+				needsClearScreen = true;
 			});
 
 			break;
@@ -650,6 +656,7 @@ const processKey = (keyName, shift) => {
 let cursorX = 4, cursorY = 4;
 const processKeyInEdit = (keyName, shift, ctrl) => {
 	let movKey = undefined;
+	let needsLaterClearScreen = false;
 
 	switch (keyName) {
 		case 'left':
@@ -697,7 +704,24 @@ const processKeyInEdit = (keyName, shift, ctrl) => {
 		case 'g':
 		case 'O':
 		case 'o':
-			const color = keyName.toUpperCase();
+		case '_':
+		case '-':
+			const keys = {
+				'W': { color: 'W', face: true },
+				'w': { color: 'W', face: false },
+				'R': { color: 'R', face: true },
+				'r': { color: 'R', face: false },
+				'Y': { color: 'Y', face: true },
+				'y': { color: 'Y', face: false },
+				'B': { color: 'B', face: true },
+				'b': { color: 'B', face: false },
+				'G': { color: 'G', face: true },
+				'g': { color: 'G', face: false },
+				'O': { color: 'O', face: true },
+				'o': { color: 'O', face: false },
+				'_': { color: '-', face: true },
+				'-': { color: '-', face: false },
+			}
 			let face, cx, cy;
 			if (cursorX <= 3) { face = c.L; cx = cursorX; cy = cursorY - 3; }
 			else if (cursorX <= 6 && cursorY <= 3) { face = c.U; cx = cursorX - 3; cy = cursorY; }
@@ -706,8 +730,19 @@ const processKeyInEdit = (keyName, shift, ctrl) => {
 			else if (cursorX <= 9) { face = c.R; cx = cursorX - 6; cy = cursorY - 3; }
 			else if (cursorX <= 12) { face = c.B; cx = cursorX - 9; cy = cursorY - 3; }
 
-			if (face)
+			const color = keys[keyName].color;
+			const entireFace = keys[keyName].face;
+
+			if (face) {
 				face[cy - 1][cx - 1] = color;
+				if (entireFace) {
+					// upper case - color entire face
+					for (cx = 0; cx < 3; ++cx) {
+						for (cy = 0; cy < 3; ++cy)
+							face[cy][cx] = color;
+					}
+				}
+			}
 			break;
 
 		case 'f2':
@@ -729,6 +764,7 @@ const processKeyInEdit = (keyName, shift, ctrl) => {
 			if (ctrl) {
 				fs.writeFileSync('cube.json', JSON.stringify(c, null, 2));
 				console.log('Saved');
+				needsClearScreen = true;
 				return;
 			}
 			break;
@@ -738,32 +774,40 @@ const processKeyInEdit = (keyName, shift, ctrl) => {
 				const fileContents = fs.readFileSync('cube.json', 'utf-8');
 				c = JSON.parse(fileContents);
 				console.log('Loaded');
+				needsLaterClearScreen = true;
 			}
 			break;
 	}
 
 	clear('E D I T   M O D E');
-	console.log('F2 - exit edit, arrow keys - move cursor, arrows + shift - move cube, = - reset cube');
+	console.log('F2 - exit edit | arrow keys - move cursor | arrows + shift - move cube | = - reset cube | R/G/B/O/W/Y/- - place color, with shift - color entire face | CTRL + L/S - load/save state');
+	console.log();
 
 	const res = validate(c);
 	let s = '  Counts: ';
-	s += Array.from('RGBOWY')
+	s += Array.from('RGBOWY-')
 		.map(col => {
-			const t = colors[col] || 'Q'
-			const name = t.replace('Q', col);
+			const formatColor = colors[col] || 'Q'
+			const formattedColorName = formatColor.replace('Q', col);
 
-			const u = res.counts[col] === 9 ? 'Q' : highlight;
-			const count = u.replace('Q', res.counts[col]);
+			const optionalHighlight = res.counts[col] === 9 ? 'Q' : highlight;
+			const formattedCount = optionalHighlight.replace('Q', res.counts[col]);
 
-			return name + ' ' + count;
+			return formattedColorName + ' ' + formattedCount;
 		}).join(',  ');
 	s += res.valid ? '' : ' - INVALID';
-	console.log(s);
+	logAndClearLine(s);
 
 	const mov = movements[movKey];
 	if (mov) {
 		console.log('Movement: ' + movKey.replace('_', "'"));
 		mov(c);
+	} else {
+		console.log();
 	}
+
 	displayCube(c, cursorX, cursorY);
+
+	if (needsLaterClearScreen)
+		needsClearScreen = true;
 };
