@@ -4,7 +4,8 @@
   "description": "",
   "main": "rubik-full.js",
   "scripts": {
-    "start": "node --es-module-specifier-resolution=node rubik-full.js"
+    "start": "node --es-module-specifier-resolution=node rubik-full.js",
+    "lint": "npx eslint **/*.js"
   },
   "type": "module",
   "repository": {
@@ -16,5 +17,9 @@
   "bugs": {
     "url": "https://github.com/lukaszmn/Rubik-Cube/issues"
   },
-  "homepage": "https://github.com/lukaszmn/Rubik-Cube#readme"
+  "homepage": "https://github.com/lukaszmn/Rubik-Cube#readme",
+  "devDependencies": {
+    "eslint": "^8.2.0",
+    "eslint-config-google": "^0.14.0"
+  }
 }

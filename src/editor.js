@@ -77,7 +77,7 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 				'o': { color: 'O', face: false },
 				'_': { color: '-', face: true },
 				'-': { color: '-', face: false },
-			}
+			};
 			let face, cx, cy;
 			if (cursorX <= 3) { face = STATE.c.L; cx = cursorX; cy = cursorY - 3; }
 			else if (cursorX <= 6 && cursorY <= 3) { face = STATE.c.U; cx = cursorX - 3; cy = cursorY; }
@@ -133,14 +133,21 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 	}
 
 	clear('E D I T   M O D E');
-	console.log('F2 - exit edit | arrow keys - move cursor | arrows + shift - move cube | = - reset cube | R/G/B/O/W/Y/- - place color, with shift - color entire face | CTRL + L/S - load/save state');
+	console.log(
+		'F2 - exit edit ' +
+		'| arrow keys - move cursor ' +
+		'| arrows + shift - move cube ' +
+		'| = - reset cube ' +
+		'| R/G/B/O/W/Y/- - place color, with shift - color entire face ' +
+		'| CTRL + L/S - load/save state'
+	);
 	console.log();
 
 	const res = validate(STATE.c);
 	let s = '  Counts: ';
 	s += Array.from('RGBOWY-')
 		.map(col => {
-			const formatColor = colors[col] || 'Q'
+			const formatColor = colors[col] || 'Q';
 			const formattedColorName = formatColor.replace('Q', col);
 
 			const optionalHighlight = res.counts[col] === 9 ? 'Q' : highlight;
@@ -155,9 +162,8 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 	if (mov) {
 		console.log('Movement: ' + movKey.replace('_', "'"));
 		mov(STATE.c);
-	} else {
+	} else
 		console.log();
-	}
 
 	displayCube(STATE.c, cursorX, cursorY);
 

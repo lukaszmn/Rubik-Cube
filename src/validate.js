@@ -1,12 +1,12 @@
 export const validate = cube => {
 	const counts = {
-		W: 0,
-		R: 0,
-		G: 0,
-		B: 0,
-		O: 0,
-		Y: 0,
-		'-': 0
+		'W': 0,
+		'R': 0,
+		'G': 0,
+		'B': 0,
+		'O': 0,
+		'Y': 0,
+		'-': 0,
 	};
 
 	for (const face in cube) {

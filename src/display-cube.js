@@ -78,7 +78,7 @@ export const displayCube = (cube, cursorX, cursorY) => {
 				cube.D[2][0], cube.D[1][0], cube.D[1][2], cube.D[2][2], cube.D[2][1], cube.D[2][0],
 				cube.L[2][1], cube.R[2][1],
 				cube.L[2][0], cube.R[2][2],
-				cube.B[2][2], cube.B[2][1], cube.B[2][0]
+				cube.B[2][2], cube.B[2][1], cube.B[2][0],
 			],
 		};
 		return colorize(lines, data);
@@ -211,7 +211,7 @@ export const displayCube = (cube, cursorX, cursorY) => {
 		return res;
 	};
 
-	let lines = join(getCube(), getLeft(), getFront(), getRight(), getBack(), getUp(), getDown(), getExtraCube(), get3dCube());
+	const lines = join(getCube(), getLeft(), getFront(), getRight(), getBack(), getUp(), getDown(), getExtraCube(), get3dCube());
 
 	for (const line of lines)
 		console.log(line);

@@ -5,5 +5,5 @@ export const targetCube = [
 	'BBB RRR GGG OOO',    // 3
 	'BBB RRR GGG OOO',    // 4
 	' W W W W W W W W',   // 5
-	'W'                   // 6
+	'W',                  // 6
 ];

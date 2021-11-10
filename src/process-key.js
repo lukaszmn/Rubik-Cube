@@ -54,7 +54,7 @@ export const processKey = (keyName, shift) => {
 		case 'f4':
 			if (process.stdin.isTTY)
 				process.stdin.setRawMode(false);
-				STATE.typingMode = true;
+			STATE.typingMode = true;
 
 			const rl = readline.createInterface({
 				input: process.stdin,

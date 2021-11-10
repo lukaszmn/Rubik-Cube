@@ -3,10 +3,6 @@ import { rotateFace } from './rotate-face';
 
 const transformCube = (faceToRotate, edge1, edge2, edge3, edge4) => {
 
-	const copyArray = (src, dest) => {
-		for (let i = 0; i < src.length; ++i)
-			dest[i] = src[i];
-	};
 	const copyEdge = (src, dest) => {
 		for (let i = 0; i < src.edge.length; ++i) {
 			const destRow = dest.edge[i][0];
@@ -19,9 +15,8 @@ const transformCube = (faceToRotate, edge1, edge2, edge3, edge4) => {
 	const copy2DArray = (src, dest) => {
 		for (let rowIndex = 0; rowIndex < dest.length; ++rowIndex) {
 			const row = dest[rowIndex];
-			for (let colIndex = 0; colIndex < row.length; ++colIndex) {
+			for (let colIndex = 0; colIndex < row.length; ++colIndex)
 				dest[rowIndex][colIndex] = src[rowIndex][colIndex];
-			}
 		}
 	};
 
@@ -32,7 +27,7 @@ const transformCube = (faceToRotate, edge1, edge2, edge3, edge4) => {
 
 	const tmp = {
 		face: createSide(),
-		edge: edge1.edge
+		edge: edge1.edge,
 	};
 	copy2DArray(edge1.face, tmp.face);
 	copyEdge(edge1, tmp);
@@ -98,12 +93,12 @@ export const movements = {
 	D_: undefined,
 	B_: undefined,
 
-	u: cube => { _movements.U(cube); movements.E_(cube) },
-	d: cube => { _movements.D(cube); movements.E(cube) },
-	l: cube => { _movements.L(cube); movements.M(cube) },
-	r: cube => { _movements.R(cube); movements.M_(cube) },
-	f: cube => { _movements.F(cube); movements.S(cube) },
-	b: cube => { _movements.B(cube); movements.S_(cube) },
+	u: cube => { _movements.U(cube); movements.E_(cube); },
+	d: cube => { _movements.D(cube); movements.E(cube); },
+	l: cube => { _movements.L(cube); movements.M(cube); },
+	r: cube => { _movements.R(cube); movements.M_(cube); },
+	f: cube => { _movements.F(cube); movements.S(cube); },
+	b: cube => { _movements.B(cube); movements.S_(cube); },
 
 	// u_: cube => prime(() => movements.u(cube)),
 	// d_: cube => prime(() => movements.d(cube)),

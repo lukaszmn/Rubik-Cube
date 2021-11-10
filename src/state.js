@@ -10,7 +10,7 @@ export const STATE = {
 
 export const initState = cube => {
 	STATE.c = cloneCube(cube);
-	STATE.history = [cloneCube(cube)];
+	STATE.history = [ cloneCube(cube) ];
 	STATE.editMode = false;
 	STATE.typingMode = false;
 	STATE.needsClearScreen = true;

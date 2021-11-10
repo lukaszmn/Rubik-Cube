@@ -31,7 +31,7 @@ export const readCube = arr => {
 			arr[4].split(' ')[index],
 		];
 		return face.map(s => Array.from(s));
-	}
+	};
 
 	cube.L = readSide(0);
 	cube.F = readSide(1);
