@@ -3,7 +3,8 @@ import { cloneCube } from './clone-cube';
 import { displayCube } from './display-cube';
 import { movements } from './movements';
 import { readCube } from './read-cube';
-import { STATE } from './state';
+import { solverInterface } from './solver-interface';
+import { MODE, STATE } from './state';
 import { targetCube } from './target-cube';
 import { clear, colors, highlight, logAndClearLine } from './terminal-output';
 import { validate } from './validate';
@@ -102,11 +103,33 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 			break;
 
 		case 'f2':
-			STATE.editMode = false;
-			STATE.needsClearScreen = true;
-			clear();
-			displayCube(STATE.c);
-			STATE.history.push(cloneCube(STATE.c));
+			switch (STATE.mode) {
+				case MODE.EDIT:
+					STATE.mode = MODE.BROWSE;
+					STATE.needsClearScreen = true;
+					clear();
+					displayCube(STATE.c);
+					STATE.history.push(cloneCube(STATE.c));
+					break;
+
+				case MODE.OPTIMIZE_SOURCE:
+					STATE.mode = MODE.OPTIMIZE_TARGET;
+					STATE.optimize = {
+						source: cloneCube(STATE.c),
+						target: undefined,
+						options: [],
+						maxSteps: undefined,
+					};
+					STATE.needsClearScreen = true;
+					processKeyInEdit(undefined, false, false);
+					break;
+
+				case MODE.OPTIMIZE_TARGET:
+					STATE.mode = MODE.OPTIMIZE_CUSTOM;
+					STATE.optimize.target = cloneCube(STATE.c);
+					solverInterface();
+					break;
+			}
 			return;
 
 		case '=':
@@ -132,7 +155,12 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 			break;
 	}
 
-	clear('E D I T   M O D E');
+	switch (STATE.mode) {
+		case MODE.EDIT: clear('E D I T   M O D E'); break;
+		case MODE.OPTIMIZE_SOURCE: clear('O P T I M I Z E   -   E D I T   I N I T I A L   C U B E'); break;
+		case MODE.OPTIMIZE_TARGET: clear('O P T I M I Z E   -   E D I T   T A R G E T   C U B E'); break;
+	}
+
 	console.log(
 		'F2 - exit edit ' +
 		'| arrow keys - move cursor ' +

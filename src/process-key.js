@@ -1,12 +1,12 @@
-import * as readline from 'readline';
 import { act } from './act';
 import { cloneCube } from './clone-cube';
 import { displayCube } from './display-cube';
 import { processKeyInEdit } from './editor';
 import { movements } from './movements';
+import { question } from './question';
 import { readCube } from './read-cube';
 import { scramble } from './scramble';
-import { STATE } from './state';
+import { MODE, STATE } from './state';
 import { targetCube } from './target-cube';
 import { clear } from './terminal-output';
 
@@ -34,7 +34,8 @@ export const processKey = (keyName, shift) => {
 		case 'f1':
 			console.log('F1 - help');
 			console.log('F2 - edit mode');
-			console.log('F4 - perform moves'); // TODO
+			console.log('F4 - perform moves');
+			console.log('F6 - optimize algorithm');
 			console.log('backspace - undo last move');
 			console.log('arrow keys - rotate');
 			console.log('= - reset');
@@ -46,36 +47,23 @@ export const processKey = (keyName, shift) => {
 			break;
 
 		case 'f2':
-			STATE.editMode = true;
+			STATE.mode = MODE.EDIT;
 			STATE.needsClearScreen = true;
 			processKeyInEdit(undefined, false, false);
 			break;
 
 		case 'f4':
-			if (process.stdin.isTTY)
-				process.stdin.setRawMode(false);
-			STATE.typingMode = true;
-
-			const rl = readline.createInterface({
-				input: process.stdin,
-				output: process.stdout,
-				terminal: false,
-			});
-
-			rl.question('Type movements (UDLRFB udlrfb MES xyz): ', answer => {
-				act(STATE.c, false, answer);
+			question('Type movements (UDLRFB udlrfb MES xyz): ', answer => {
+				act(STATE.c, 'summary', answer);
 				STATE.history.push(cloneCube(STATE.c));
-				// TODO: 1. either of close() or pause() stops the application
-				// rl.close();
-				// rl.pause();
-				// TODO: 2. moving readline.createInterface() out of this method causes that user's answer contains "\x1B[[D"
-
-				if (process.stdin.isTTY)
-					process.stdin.setRawMode(true);
-				STATE.typingMode = false;
 				STATE.needsClearScreen = true;
 			});
+			break;
 
+		case 'f6':
+			STATE.mode = MODE.OPTIMIZE_SOURCE;
+			STATE.needsClearScreen = true;
+			processKeyInEdit(undefined, false, false);
 			break;
 
 		case '=':

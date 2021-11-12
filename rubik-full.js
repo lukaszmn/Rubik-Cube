@@ -3,7 +3,7 @@ import { displayCube } from './src/display-cube';
 import { processKeyInEdit } from './src/editor';
 import { processKey } from './src/process-key';
 import { readCube } from './src/read-cube';
-import { STATE, initState } from './src/state';
+import { STATE, initState, MODE } from './src/state';
 import { targetCube } from './src/target-cube';
 import { clear } from './src/terminal-output';
 
@@ -34,8 +34,15 @@ process.stdin.on('keypress', (str, key) => {
 
 	// console.log(keyName, str, key);
 
-	if (!STATE.editMode)
-		processKey(keyName, key.shift);
-	else
-		processKeyInEdit(keyName, key.shift, key.ctrl);
+	switch (STATE.mode) {
+		case MODE.BROWSE:
+			processKey(keyName, key.shift);
+			break;
+
+		case MODE.EDIT:
+		case MODE.OPTIMIZE_SOURCE:
+		case MODE.OPTIMIZE_TARGET:
+			processKeyInEdit(keyName, key.shift, key.ctrl);
+			break;
+	}
 });
