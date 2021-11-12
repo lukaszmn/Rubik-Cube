@@ -3,6 +3,7 @@ import { cloneCube } from './clone-cube';
 import { displayCube } from './display-cube';
 import { processKeyInEdit } from './editor';
 import { movements } from './movements';
+import { saveState } from './persistence';
 import { question } from './question';
 import { readCube } from './read-cube';
 import { scramble } from './scramble';
@@ -34,6 +35,7 @@ export const processKey = (keyName, shift) => {
 		case 'f1':
 			console.log('F1 - help');
 			console.log('F2 - edit mode');
+			console.log('F3 - record movements');
 			console.log('F4 - perform moves');
 			console.log('F6 - optimize algorithm');
 			console.log('backspace - undo last move');
@@ -43,6 +45,12 @@ export const processKey = (keyName, shift) => {
 			console.log('escape or CTRL+C - exit');
 			console.log('Movements: UDLRFB udlrfb MES xyz');
 			console.log("Press 'U to create movement U'");
+			console.log();
+
+			console.log('Saved recordings:');
+			for (const rec of STATE.savedRecordings)
+				console.log(`  ${rec.key}: ${rec.movements}`);
+
 			STATE.needsClearScreen = true;
 			break;
 
@@ -50,6 +58,38 @@ export const processKey = (keyName, shift) => {
 			STATE.mode = MODE.EDIT;
 			STATE.needsClearScreen = true;
 			processKeyInEdit(undefined, false, false);
+			break;
+
+		case 'f3':
+			if (STATE.mode !== MODE.RECORD) {
+				STATE.mode = MODE.RECORD;
+				STATE.recording = '';
+				STATE.needsClearScreen = true;
+				console.log('Recording movements. Press F3 again to save')
+			} else {
+				STATE.mode = MODE.BROWSE;
+				if (STATE.recording === '') {
+					console.log('No movements were recorded');
+				} else {
+					console.log('Recorded movements:');
+					for (const rec of STATE.savedRecordings)
+						console.log(`  ${rec.key}: ${rec.movements}`);
+					console.log(`  <CURRENT>: ${STATE.recording}`);
+
+					question('Which key to save movements under? (0-9 or empty to cancel): ', answer => {
+						if (answer >= '0' && answer <= '9') {
+							// TODO: ask for name
+							STATE.savedRecordings = STATE.savedRecordings.filter(x => x.key !== answer);
+							STATE.savedRecordings.push({ key: answer, movements: STATE.recording });
+							saveState();
+							console.log('Saved');
+						} else {
+							console.log('Canceled');
+						}
+						STATE.needsClearScreen = true;
+					});
+				}
+			}
 			break;
 
 		case 'f4':
@@ -74,7 +114,6 @@ export const processKey = (keyName, shift) => {
 			break;
 
 		case '`':
-			// const cube = readCube(targetCube);
 			const scrambleRes = scramble(STATE.c, 1);
 			STATE.c = scrambleRes.cube;
 			clear('Scramble: ' + scrambleRes.path);
@@ -83,12 +122,25 @@ export const processKey = (keyName, shift) => {
 			break;
 	}
 
+	wasPrime = false;
+
+	const savedRecordingForKey = STATE.savedRecordings.find(x => x.key === keyName);
+	if (savedRecordingForKey) {
+		act(STATE.c, 'summary', savedRecordingForKey.movements);
+		STATE.history.push(cloneCube(STATE.c));
+		STATE.needsClearScreen = true;
+		return;
+	}
+
 	const mov = movements[movKey];
 	if (mov) {
-		clear('Movement: ' + movKey.replace('_', "'"));
+		const visibleMovement = movKey.replace('_', "'");
+		clear('Movement: ' + visibleMovement);
 		mov(STATE.c);
 		displayCube(STATE.c);
 		STATE.history.push(cloneCube(STATE.c));
+
+		if (STATE.mode === MODE.RECORD)
+			STATE.recording += visibleMovement;
 	}
-	wasPrime = false;
 };

@@ -1,6 +1,7 @@
 import { emitKeypressEvents } from 'readline';
 import { displayCube } from './src/display-cube';
 import { processKeyInEdit } from './src/editor';
+import { loadState } from './src/persistence';
 import { processKey } from './src/process-key';
 import { readCube } from './src/read-cube';
 import { STATE, initState, MODE } from './src/state';
@@ -13,6 +14,7 @@ const cube = readCube(targetCube);
 // act(cube, true, "RUR'URUUR'");
 
 initState(cube);
+loadState();
 
 clear();
 displayCube(cube);
@@ -36,6 +38,7 @@ process.stdin.on('keypress', (str, key) => {
 
 	switch (STATE.mode) {
 		case MODE.BROWSE:
+		case MODE.RECORD:
 			processKey(keyName, key.shift);
 			break;
 

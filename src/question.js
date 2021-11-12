@@ -25,6 +25,7 @@ export const question = (prompt, callback) => {
 		// rl.close();
 		// rl.pause();
 		// TODO: 2. moving readline.createInterface() out of this method causes that user's answer contains "\x1B[[D"
+		// see maybe: https://github.com/SBoudrias/Inquirer.js/blob/master/packages/core/index.js
 
 		if (process.stdin.isTTY)
 			process.stdin.setRawMode(true);
