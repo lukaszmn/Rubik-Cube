@@ -14,7 +14,8 @@ loggers: { step: (step, solutionsCount, queueSize)=>{}, progress: percent=>{}, s
 export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 	let steps = [{
 		path: '',
-		cube: toOneLine(startCube),
+		cubeArr: Array.from(toOneLine(startCube)),
+		cubeStr: toOneLine(startCube),
 		// previousCubes: [],
 	}];
 
@@ -50,7 +51,8 @@ export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 						continue;
 				}
 
-				const newCube = cacheTransform(movementsCache, step.cube, option.name);
+				const newCubeArr = cacheTransform(movementsCache, step.cubeArr, option.name);
+				const newCubeStr = newCubeArr.join('');
 				// console.log(step.cube, option.name, newCube);
 
 				const newPath = step.path + optionIndex;
@@ -58,19 +60,20 @@ export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 				if (step !== maxSteps) {
 					const newStep = {
 						path: newPath,
-						cube: newCube,
+						cubeArr: newCubeArr,
+						cubeStr: newCubeStr,
 						// previousCubes: [...step.previousCubes, step.cube],
 					};
 
 					// if (newStep.previousCubes.includes(newCube))
-					if (allPreviousCubes[newCube])
+					if (allPreviousCubes[newCubeStr])
 						continue;
 
 					newSteps.push(newStep);
-					allPreviousCubes[newCube] = true;
+					allPreviousCubes[newCubeStr] = true;
 				}
 
-				if (targetInOneLineRegex.test(newCube)) {
+				if (targetInOneLineRegex.test(newCubeStr)) {
 				// if (targetInOneLine === newCube) {
 					const indicesPath = Array.from(newPath);
 					const path = indicesPath
@@ -83,14 +86,15 @@ export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 					solutions.push({
 						path: path,
 						length: length,
-						cube: toCube(newCube),
+						cube: toCube(newCubeStr),
 					});
 					++newSolutionsCounter;
 				}
 			}
 
 			step.path = undefined;
-			step.cube = undefined;
+			step.cubeArr = undefined;
+			step.cubeStr = undefined;
 			// step.previousCubes = undefined;
 
 			++totalStepCounter;
@@ -164,13 +168,16 @@ const cacheMovement = (movementsCache, name, movements) => {
 		throw new Error('Failed to cache movements: ' + movements);
 };
 
-const cacheTransform = (movementsCache, cubeOneLine, movementName) => {
+const cacheTransform = (movementsCache, cubeOneLineArray, movementName) => {
 	const transform = movementsCache[movementName];
 
-	const after = Array.from(cubeOneLine);
+	const after = [];
+	for (var i = 0, l = cubeOneLineArray.length; i < l; ++i)
+	after[i] = cubeOneLineArray[i];
+
 	for (const t of transform)
-		after[t[0]] = cubeOneLine[t[1]];
-	return after.join('');
+		after[t[0]] = cubeOneLineArray[t[1]];
+	return after;
 }
 
 // cacheMovements([{name: 'R', movements: 'R'}]);
