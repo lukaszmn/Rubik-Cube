@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import { cloneCube } from './clone-cube';
+import { toCube, toOneLine } from './cube-converters';
 import { displayCube } from './display-cube';
 import { movements } from './movements';
 import { readCube } from './read-cube';
@@ -138,7 +139,10 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 
 		case 's':
 			if (ctrl) {
-				fs.writeFileSync('cube.json', JSON.stringify(STATE.c, null, 2));
+				const data = {
+					'cube': toOneLine(STATE.c, true),
+				};
+				fs.writeFileSync('cube.json', JSON.stringify(data, null, 2));
 				console.log('Saved');
 				STATE.needsClearScreen = true;
 				return;
@@ -148,7 +152,8 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 		case 'l':
 			if (ctrl) {
 				const fileContents = fs.readFileSync('cube.json', 'utf-8');
-				STATE.c = JSON.parse(fileContents);
+				const data = JSON.parse(fileContents);
+				STATE.c = toCube(data.cube);
 				console.log('Loaded');
 				needsLaterClearScreen = true;
 			}
