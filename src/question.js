@@ -36,4 +36,4 @@ export const question = (prompt, callback) => {
 
 };
 
-export const questionAsync = (prompt) => new Promise(resolve => question(prompt, res => resolve(res)));
+export const questionAsync = prompt => new Promise(resolve => question(prompt, res => resolve(res)));

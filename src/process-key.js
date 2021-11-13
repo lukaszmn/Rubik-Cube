@@ -65,7 +65,7 @@ export const processKey = (keyName, shift) => {
 				STATE.mode = MODE.RECORD;
 				STATE.recording = '';
 				STATE.needsClearScreen = true;
-				console.log('Recording movements. Press F3 again to save')
+				console.log('Recording movements. Press F3 again to save');
 			} else {
 				STATE.mode = MODE.BROWSE;
 				if (STATE.recording === '') {

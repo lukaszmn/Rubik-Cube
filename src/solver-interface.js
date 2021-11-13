@@ -20,7 +20,7 @@ export const solverInterface = async () => {
 		while (!movements)
 			movements = await questionAsync('Type movements (UDLRFB udlrfb MES xyz): ');
 
-		STATE.optimize.options.push({name, movements});
+		STATE.optimize.options.push({ name, movements });
 	}
 };
 
@@ -52,7 +52,7 @@ const showSummary = () => {
 	console.log(`Max repetitions: ${STATE.optimize.maxSteps}`);
 };
 
-const showSolution = (solutions) => {
+const showSolution = solutions => {
 	console.log();
 
 	if (solutions.length === 0) {

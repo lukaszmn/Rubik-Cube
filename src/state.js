@@ -20,7 +20,7 @@ export const STATE = {
 	savedRecordings: [], // { key: '0', movements: 'RUR' }
 };
 
-export const initState = (cube) => {
+export const initState = cube => {
 	STATE.c = cloneCube(cube);
 	STATE.history = [ cloneCube(cube) ];
 	STATE.mode = MODE.BROWSE;

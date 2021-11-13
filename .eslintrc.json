@@ -13,7 +13,7 @@
     "rules": {
         "linebreak-style": ["error", "windows"],
         "indent": ["error", "tab", { "SwitchCase": 1 }],
-        "curly": ["error", "multi-or-nest"],
+        "curly": "off",
         "no-tabs": "off",
         "no-multi-spaces": ["error", { "ignoreEOLComments": true }],
         "object-curly-spacing": ["error", "always"],
