@@ -212,6 +212,7 @@ export const displayCube = (cube, cursorX, cursorY) => {
 	};
 
 	const lines = join(getCube(), getLeft(), getFront(), getRight(), getBack(), getUp(), getDown(), getExtraCube(), get3dCube());
+	// const lines = join(getCube(), getExtraCube(), get3dCube());
 
 	for (const line of lines)
 		console.log(line);

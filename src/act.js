@@ -7,6 +7,9 @@ export const act = (cube, showSteps, steps) => {
 	// console.log(Array.from(steps));
 	for (let i = 0; i < steps.length; ++i) {
 		let mov = steps[i];
+		if (mov === ' ')
+			continue;
+
 		if (i + 1 < steps.length && steps[i + 1] === "'") {
 			++i;
 			mov += '_';
