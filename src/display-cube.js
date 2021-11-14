@@ -18,7 +18,7 @@ export const displayCube = (cube, cursorX, cursorY, hideHints) => {
 
 	const join = (...liness) => {
 		const res = liness[0].map(_ => '');
-		liness.forEach(lines => {
+		liness.filter(x => x).forEach(lines => {
 			for (let i = 0; i < lines.length; ++i) {
 				if (res[i].length > 0)
 					res[i] += '     ';
@@ -28,18 +28,26 @@ export const displayCube = (cube, cursorX, cursorY, hideHints) => {
 		return res;
 	};
 
+	const smallScreen = process.stdout.columns < 180;
+	/* widths:
+		getCube      - 18
+		getLeft...   - 13 * 6
+		getExtraCube - 19
+		get3dCube    - 24
+		spacer       -  5
+	*/
+
 	const lines = join(
 		getCube(cube, useColor, cursorX, cursorY),
-		getLeft(),
-		getFront(),
-		getRight(),
-		getBack(),
-		getUp(),
-		getDown(),
+		smallScreen ? null : getLeft(),
+		smallScreen ? null : getFront(),
+		smallScreen ? null : getRight(),
+		smallScreen ? null : getBack(),
+		smallScreen ? null : getUp(),
+		smallScreen ? null : getDown(),
 		getExtraCube(cube, useColor),
 		get3dCube(cube, useColor),
 	);
-	// const lines = join(getCube(), getExtraCube(), get3dCube());
 
 	for (const line of lines)
 		console.log(line);
