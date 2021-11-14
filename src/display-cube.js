@@ -1,17 +1,17 @@
 import { rotateFace } from './rotate-face';
 import { colors, highlight } from './terminal-output';
 
-export const displayCube = (cube, previousCube, cursorX, cursorY) => {
+export const displayCube = (cube, useColor, previousCube, cursorX, cursorY) => {
 
 	const rotR = face => rotateFace(face);
 	const rotL = face => rotR(rotR(rotR(face)));
 	const rotB = face => rotR(rotR(face));
-	const getLeft = () => getSection('Left', rotL(cube.U), cube.B, cube.L, cube.F, rotR(cube.D));
-	const getFront = () => getSection('Front', cube.U, cube.L, cube.F, cube.R, cube.D);
-	const getRight = () => getSection('Right', rotR(cube.U), cube.F, cube.R, cube.B, rotL(cube.D));
-	const getBack = () => getSection('Back', rotB(cube.U), cube.R, cube.B, cube.L, rotB(cube.D));
-	const getUp = () => getSection('Up', rotB(cube.B), rotR(cube.L), cube.U, rotL(cube.R), cube.F);
-	const getDown = () => getSection('Down', cube.F, rotL(cube.L), cube.D, rotR(cube.R), rotB(cube.B));
+	const getLeft = () => getSection('Left', rotL(cube.U), cube.B, cube.L, cube.F, rotR(cube.D), useColor);
+	const getFront = () => getSection('Front', cube.U, cube.L, cube.F, cube.R, cube.D, useColor);
+	const getRight = () => getSection('Right', rotR(cube.U), cube.F, cube.R, cube.B, rotL(cube.D), useColor);
+	const getBack = () => getSection('Back', rotB(cube.U), cube.R, cube.B, cube.L, rotB(cube.D), useColor);
+	const getUp = () => getSection('Up', rotB(cube.B), rotR(cube.L), cube.U, rotL(cube.R), cube.F, useColor);
+	const getDown = () => getSection('Down', cube.F, rotL(cube.L), cube.D, rotR(cube.R), rotB(cube.B), useColor);
 
 	const join = (...liness) => {
 		const res = liness[0].map(_ => '');
@@ -26,15 +26,15 @@ export const displayCube = (cube, previousCube, cursorX, cursorY) => {
 	};
 
 	const lines = join(
-		getCube(cube, cursorX, cursorY),
+		getCube(cube, useColor, cursorX, cursorY),
 		getLeft(),
 		getFront(),
 		getRight(),
 		getBack(),
 		getUp(),
 		getDown(),
-		getExtraCube(cube),
-		get3dCube(cube),
+		getExtraCube(cube, useColor),
+		get3dCube(cube, useColor),
 	);
 	// const lines = join(getCube(), getExtraCube(), get3dCube());
 
@@ -47,7 +47,7 @@ export const displayCube = (cube, previousCube, cursorX, cursorY) => {
 
 const toLine = arr => arr.reduce((prev, curr) => [...prev, ...curr], []);
 
-const getCube = (cube, cursorX, cursorY) => {
+const getCube = (cube, useColor, cursorX, cursorY) => {
 	const lines = [
 		' Cube:            ',
 		'                  ',
@@ -79,10 +79,10 @@ const getCube = (cube, cursorX, cursorY) => {
 	const cx = cursorX + Math.floor((cursorX - 1) / 3);
 	const cy = cursorY + Math.floor((cursorY - 1) / 3);
 
-	return colorize(lines, data, cx + 1, cy + 2);
+	return colorize(lines, data, useColor, cx + 1, cy + 2);
 };
 
-const getExtraCube = cube => {
+const getExtraCube = (cube, useColor) => {
 	const lines = [
 		' Extra Cube:       ',
 		'      XXX          ',
@@ -123,10 +123,10 @@ const getExtraCube = cube => {
 			cube.B[2][2], cube.B[2][1], cube.B[2][0],
 		],
 	};
-	return colorize(lines, data);
+	return colorize(lines, data, useColor);
 };
 
-const get3dCube = cube => {
+const get3dCube = (cube, useColor) => {
 	/*
 	*       +----+----+----+
 	*      / U  / U  / U  /|
@@ -172,10 +172,10 @@ const get3dCube = cube => {
 		B: toLine(cube.B),
 		D: toLine(cube.D),
 	};
-	return colorizeWithDigits(lines, data);
+	return colorizeWithDigits(lines, data, useColor);
 };
 
-const getSection = (title, face1, face2, face3, face4, face5) => {
+const getSection = (title, face1, face2, face3, face4, face5, useColor) => {
 	const lines = [
 		(title + ':').padEnd(13, ' '),
 		'             ',
@@ -202,16 +202,16 @@ const getSection = (title, face1, face2, face3, face4, face5) => {
 		4: toLine(face4),
 		5: toLine(face5),
 	};
-	return colorize(lines, data);
+	return colorize(lines, data, useColor);
 };
 
-const colorize = (lines, data, cursorX, cursorY) => lines.map((line, rowIndex) => {
+const colorize = (lines, data, useColor, cursorX, cursorY) => lines.map((line, rowIndex) => {
 	let s = '';
 	let column = 0;
 	for (const ch of line) {
 		if (ch in data) {
 			const col = data[ch].splice(0, 1)[0];
-			const color = colors[col] || 'Q';
+			const color = (useColor && colors[col]) || 'Q';
 			const h = cursorX === column && cursorY === rowIndex ? highlight : 'Q';
 			s += color.replace('Q', h).replace('Q', col);
 		} else
@@ -221,11 +221,11 @@ const colorize = (lines, data, cursorX, cursorY) => lines.map((line, rowIndex) =
 	return s;
 });
 
-const colorizeWithDigits = (lines, data) => lines.map(line => {
+const colorizeWithDigits = (lines, data, useColor) => lines.map(line => {
 	for (const ch in data) {
 		for (let digit = 1; digit <= 9; ++digit) {
 			const col = data[ch][digit - 1];
-			const color = colors[col] || 'Q';
+			const color = (useColor && colors[col]) || 'Q';
 			line = line.replace(new RegExp(ch + digit, 'g'), color.replace('Q', col));
 		}
 	}

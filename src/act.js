@@ -3,7 +3,7 @@ import { movements } from './movements';
 import { clear } from './terminal-output';
 
 /* showSteps = 'all' | 'summary' | 'none' */
-export const act = (cube, showSteps, steps) => {
+export const act = (cube, showSteps, steps, showColors) => {
 	// console.log(Array.from(steps));
 	for (let i = 0; i < steps.length; ++i) {
 		let mov = steps[i];
@@ -23,10 +23,10 @@ export const act = (cube, showSteps, steps) => {
 
 		if (showSteps === 'all') {
 			clear('Movement: ' + mov);
-			displayCube(cube);
+			displayCube(cube, showColors);
 		} else if (showSteps === 'summary' && i === steps.length - 1) {
 			clear('Movements: ' + steps);
-			displayCube(cube);
+			displayCube(cube, showColors);
 		}
 	}
 };

@@ -18,6 +18,7 @@ export const STATE = {
 	optimize: {},
 	recording: '',
 	savedRecordings: [], // { key: '0', movements: 'RUR' }
+	showColors: true,
 };
 
 export const initState = cube => {
@@ -29,4 +30,5 @@ export const initState = cube => {
 	STATE.optimize = {};
 	STATE.recording = '';
 	STATE.savedRecordings = [];
+	STATE.showColors = true;
 };
