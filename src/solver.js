@@ -1,5 +1,6 @@
 import { act } from './act';
 import { toCube, toOneLine } from './cube-converters';
+import { getIdentifierCube } from './identifier-cube';
 
 /* example:
 const options = [
@@ -174,18 +175,7 @@ const cacheMovements = options => {
 };
 
 const cacheMovement = (movementsCache, name, movements) => {
-	let i = 0;
-	const getChar = i => '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'[i];
-	const makeRow = () => [getChar(i++), getChar(i++), getChar(i++)];
-	const makeFace = () => [ makeRow(), makeRow(), makeRow() ];
-	const cube = {
-		U: makeFace(),
-		L: makeFace(),
-		F: makeFace(),
-		R: makeFace(),
-		B: makeFace(),
-		D: makeFace(),
-	};
+	const cube = getIdentifierCube();
 	const before = toOneLine(cube);
 	act(cube, 'none', movements);
 	const after = toOneLine(cube);

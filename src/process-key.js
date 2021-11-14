@@ -1,7 +1,9 @@
 import { act } from './act';
 import { cloneCube } from './clone-cube';
+import { toCube, toOneLine } from './cube-converters';
 import { displayCube } from './display-cube';
 import { processKeyInEdit } from './editor';
+import { getIdentifierCube } from './identifier-cube';
 import { movements } from './movements';
 import { saveState } from './persistence';
 import { question } from './question';
@@ -42,6 +44,7 @@ export const processKey = (keyName, shift) => {
 			console.log('arrow keys - rotate');
 			console.log('= - reset');
 			console.log('` - scramble');
+			console.log('. - toggle identifiers/colors');
 			console.log('escape or CTRL+C - exit');
 			console.log('Movements: UDLRFB udlrfb MES xyz');
 			console.log("Press 'U to create movement U'");
@@ -119,6 +122,20 @@ export const processKey = (keyName, shift) => {
 			const scrambleRes = scramble(STATE.c, 1);
 			STATE.c = scrambleRes.cube;
 			clear('Scramble: ' + scrambleRes.path);
+			STATE.history.push(cloneCube(STATE.c));
+			displayCube(STATE.c);
+			break;
+
+		case '.':
+			if (toOneLine(STATE.c).includes('5')) {
+				STATE.c = readCube(targetCube);
+				clear('Show colors');
+			} else {
+				STATE.c = getIdentifierCube();
+				clear('Show identifiers');
+				// TODO: don't colorize identifier cube
+				// TODO: at higher res show identifiers as color RGBOWY + number 1-9
+			}
 			STATE.history.push(cloneCube(STATE.c));
 			displayCube(STATE.c);
 			break;
