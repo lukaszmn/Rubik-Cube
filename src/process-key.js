@@ -1,6 +1,7 @@
 import { act } from './act';
 import { cloneCube } from './clone-cube';
-import { toCube, toOneLine } from './cube-converters';
+import { toOneLine } from './cube-converters';
+import { getCubeDiff } from './cube-diff';
 import { displayCube } from './display-cube';
 import { processKeyInEdit } from './editor';
 import { getIdentifierCube } from './identifier-cube';
@@ -11,7 +12,7 @@ import { readCube } from './read-cube';
 import { scramble } from './scramble';
 import { MODE, STATE } from './state';
 import { targetCube } from './target-cube';
-import { clear } from './terminal-output';
+import { clear, showPreviousCubeHeader } from './terminal-output';
 
 let wasPrime = false;
 
@@ -27,10 +28,15 @@ export const processKey = (keyName, shift) => {
 
 		case 'backspace':
 			if (STATE.history.length > 1) {
-				STATE.history.pop();
-				STATE.c = cloneCube(STATE.history[STATE.history.length - 1]);
 				clear('Undo');
+				const previousCube = STATE.history.pop();
+				STATE.c = cloneCube(STATE.history[STATE.history.length - 1]);
 				displayCube(STATE.c, STATE.showColors);
+
+				if (STATE.showDiff) {
+					showPreviousCubeHeader();
+					displayCube(getCubeDiff(previousCube, STATE.c), STATE.showColors);
+				}
 			}
 			break;
 
@@ -40,6 +46,7 @@ export const processKey = (keyName, shift) => {
 			console.log('F3 - record movements');
 			console.log('F4 - perform moves');
 			console.log('F6 - optimize algorithm');
+			console.log('F7 - show diff');
 			console.log('backspace - undo last move');
 			console.log('arrow keys - rotate');
 			console.log('= - reset');
@@ -99,7 +106,7 @@ export const processKey = (keyName, shift) => {
 
 		case 'f4':
 			question('Type movements (UDLRFB udlrfb MES xyz): ', answer => {
-				act(STATE.c, 'summary', answer, STATE.showColors);
+				act(STATE.c, 'summary', answer, STATE.showColors, STATE.showDiff);
 				STATE.history.push(cloneCube(STATE.c));
 				STATE.needsClearScreen = true;
 			});
@@ -111,8 +118,14 @@ export const processKey = (keyName, shift) => {
 			processKeyInEdit(undefined, false, false);
 			break;
 
+		case 'f7':
+			STATE.showDiff = !STATE.showDiff;
+			STATE.needsClearScreen = true;
+			console.log(STATE.showDiff ? 'Show differences' : 'Hide differences');
+			break;
+
 		case '=':
-			STATE.c = readCube(targetCube);
+			STATE.c = STATE.showColors ? readCube(targetCube) : getIdentifierCube();
 			clear('Reset');
 			STATE.history.push(cloneCube(STATE.c));
 			displayCube(STATE.c, STATE.showColors);
@@ -146,7 +159,7 @@ export const processKey = (keyName, shift) => {
 
 	const savedRecordingForKey = STATE.savedRecordings.find(x => x.key === keyName);
 	if (savedRecordingForKey) {
-		act(STATE.c, 'summary', savedRecordingForKey.movements, STATE.showColors);
+		act(STATE.c, 'summary', savedRecordingForKey.movements, STATE.showColors, STATE.showDiff);
 		STATE.history.push(cloneCube(STATE.c));
 		STATE.needsClearScreen = true;
 		return;
@@ -162,5 +175,10 @@ export const processKey = (keyName, shift) => {
 
 		if (STATE.mode === MODE.RECORD)
 			STATE.recording += visibleMovement;
+		else if (STATE.showDiff) {
+			showPreviousCubeHeader();
+			const previousCube = STATE.history[STATE.history.length - 2];
+			displayCube(getCubeDiff(previousCube, STATE.c), STATE.showColors);
+		}
 	}
 };

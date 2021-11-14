@@ -37,3 +37,6 @@ export const clear = msg => {
 	msg = msg ?? 'F1 - help';
 	logAndClearLine(msg);
 };
+
+export const showPreviousCubeHeader = () =>
+	console.log('\n\nPREVIOUS CUBE:');

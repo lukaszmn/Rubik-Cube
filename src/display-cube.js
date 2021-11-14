@@ -1,7 +1,7 @@
 import { rotateFace } from './rotate-face';
 import { colors, highlight } from './terminal-output';
 
-export const displayCube = (cube, useColor, previousCube, cursorX, cursorY) => {
+export const displayCube = (cube, useColor, cursorX, cursorY) => {
 
 	const rotR = face => rotateFace(face);
 	const rotL = face => rotR(rotR(rotR(face)));

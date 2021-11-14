@@ -1,10 +1,15 @@
+import { cloneCube } from './clone-cube';
+import { getCubeDiff } from './cube-diff';
 import { displayCube } from './display-cube';
 import { movements } from './movements';
-import { clear } from './terminal-output';
+import { clear, showPreviousCubeHeader } from './terminal-output';
 
 /* showSteps = 'all' | 'summary' | 'none' */
-export const act = (cube, showSteps, steps, showColors) => {
+export const act = (cube, showSteps, steps, showColors, showPreviousCube) => {
 	// console.log(Array.from(steps));
+	const firstCube = showPreviousCube && showSteps !== 'none' ? cloneCube(cube) : undefined;
+	let previousCube = firstCube;
+
 	for (let i = 0; i < steps.length; ++i) {
 		let mov = steps[i];
 		if (mov === ' ')
@@ -24,9 +29,21 @@ export const act = (cube, showSteps, steps, showColors) => {
 		if (showSteps === 'all') {
 			clear('Movement: ' + mov);
 			displayCube(cube, showColors);
+
+			if (showPreviousCube) {
+				showPreviousCubeHeader();
+				displayCube(getCubeDiff(previousCube, cube), showColors);
+			}
 		} else if (showSteps === 'summary' && i === steps.length - 1) {
 			clear('Movements: ' + steps);
 			displayCube(cube, showColors);
+
+			if (showPreviousCube) {
+				showPreviousCubeHeader();
+				displayCube(getCubeDiff(firstCube, cube), showColors);
+			}
 		}
+
+		previousCube = showPreviousCube && showSteps !== 'none' ? cloneCube(cube) : undefined;
 	}
 };
