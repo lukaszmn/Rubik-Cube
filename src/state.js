@@ -9,6 +9,12 @@ export const MODE = {
 	RECORD: 6,
 };
 
+export const DIFF_MODE = {
+	NONE: 0,
+	PREVIOUS: 1,
+	BOTH: 2,
+};
+
 export const STATE = {
 	c: {}, // cube
 	history: [],
@@ -19,7 +25,7 @@ export const STATE = {
 	recording: '',
 	savedRecordings: [], // { key: '0', movements: 'RUR' }
 	showColors: true,
-	showDiff: false,
+	showDiff: DIFF_MODE.NONE,
 };
 
 export const initState = cube => {
@@ -32,5 +38,5 @@ export const initState = cube => {
 	STATE.recording = '';
 	STATE.savedRecordings = [];
 	STATE.showColors = true;
-	STATE.showDiff = false;
+	STATE.showDiff = DIFF_MODE.NONE;
 };

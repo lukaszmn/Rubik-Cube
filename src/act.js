@@ -1,8 +1,8 @@
 import { cloneCube } from './clone-cube';
-import { getCubeDiff } from './cube-diff';
+import { printDiffs } from './cube-diff';
 import { displayCube } from './display-cube';
 import { movements } from './movements';
-import { clear, showPreviousCubeHeader } from './terminal-output';
+import { clear } from './terminal-output';
 
 /* showSteps = 'all' | 'summary' | 'none' */
 export const act = (cube, showSteps, steps, showColors, showPreviousCube) => {
@@ -30,18 +30,14 @@ export const act = (cube, showSteps, steps, showColors, showPreviousCube) => {
 			clear('Movement: ' + mov);
 			displayCube(cube, showColors);
 
-			if (showPreviousCube) {
-				showPreviousCubeHeader();
-				displayCube(getCubeDiff(previousCube, cube), showColors);
-			}
+			if (showPreviousCube)
+				printDiffs(previousCube, cube);
 		} else if (showSteps === 'summary' && i === steps.length - 1) {
 			clear('Movements: ' + steps);
 			displayCube(cube, showColors);
 
-			if (showPreviousCube) {
-				showPreviousCubeHeader();
-				displayCube(getCubeDiff(firstCube, cube), showColors);
-			}
+			if (showPreviousCube)
+				printDiffs(firstCube, cube);
 		}
 
 		previousCube = showPreviousCube && showSteps !== 'none' ? cloneCube(cube) : undefined;

@@ -1,7 +1,7 @@
 import { act } from './act';
 import { cloneCube } from './clone-cube';
 import { toOneLine } from './cube-converters';
-import { getCubeDiff } from './cube-diff';
+import { printDiffs } from './cube-diff';
 import { displayCube } from './display-cube';
 import { processKeyInEdit } from './editor';
 import { getIdentifierCube } from './identifier-cube';
@@ -10,9 +10,9 @@ import { saveState } from './persistence';
 import { question } from './question';
 import { readCube } from './read-cube';
 import { scramble } from './scramble';
-import { MODE, STATE } from './state';
+import { DIFF_MODE, MODE, STATE } from './state';
 import { targetCube } from './target-cube';
-import { clear, showPreviousCubeHeader } from './terminal-output';
+import { clear } from './terminal-output';
 
 let wasPrime = false;
 
@@ -33,10 +33,7 @@ export const processKey = (keyName, shift) => {
 				STATE.c = cloneCube(STATE.history[STATE.history.length - 1]);
 				displayCube(STATE.c, STATE.showColors);
 
-				if (STATE.showDiff) {
-					showPreviousCubeHeader();
-					displayCube(getCubeDiff(previousCube, STATE.c), STATE.showColors);
-				}
+				printDiffs(previousCube, STATE.c);
 			}
 			break;
 
@@ -106,7 +103,7 @@ export const processKey = (keyName, shift) => {
 
 		case 'f4':
 			question('Type movements (UDLRFB udlrfb MES xyz): ', answer => {
-				act(STATE.c, 'summary', answer, STATE.showColors, STATE.showDiff);
+				act(STATE.c, 'summary', answer, STATE.showColors, STATE.showDiff !== DIFF_MODE.NONE);
 				STATE.history.push(cloneCube(STATE.c));
 				STATE.needsClearScreen = true;
 			});
@@ -119,9 +116,21 @@ export const processKey = (keyName, shift) => {
 			break;
 
 		case 'f7':
-			STATE.showDiff = !STATE.showDiff;
+			switch (STATE.showDiff) {
+				case DIFF_MODE.NONE:
+					STATE.showDiff = DIFF_MODE.PREVIOUS;
+					console.log('Show differences - previous cube only');
+					break;
+				case DIFF_MODE.PREVIOUS:
+					STATE.showDiff = DIFF_MODE.BOTH;
+					console.log('Show differences - both previous and next cube');
+					break;
+				case DIFF_MODE.BOTH:
+					STATE.showDiff = DIFF_MODE.NONE;
+					console.log('Hide differences');
+					break;
+			}
 			STATE.needsClearScreen = true;
-			console.log(STATE.showDiff ? 'Show differences' : 'Hide differences');
 			break;
 
 		case '=':
@@ -159,7 +168,7 @@ export const processKey = (keyName, shift) => {
 
 	const savedRecordingForKey = STATE.savedRecordings.find(x => x.key === keyName);
 	if (savedRecordingForKey) {
-		act(STATE.c, 'summary', savedRecordingForKey.movements, STATE.showColors, STATE.showDiff);
+		act(STATE.c, 'summary', savedRecordingForKey.movements, STATE.showColors, STATE.showDiff !== DIFF_MODE.NONE);
 		STATE.history.push(cloneCube(STATE.c));
 		STATE.needsClearScreen = true;
 		return;
@@ -175,10 +184,7 @@ export const processKey = (keyName, shift) => {
 
 		if (STATE.mode === MODE.RECORD)
 			STATE.recording += visibleMovement;
-		else if (STATE.showDiff) {
-			showPreviousCubeHeader();
-			const previousCube = STATE.history[STATE.history.length - 2];
-			displayCube(getCubeDiff(previousCube, STATE.c), STATE.showColors);
-		}
+		else
+			printDiffs(STATE.history[STATE.history.length - 2], STATE.c);
 	}
 };
