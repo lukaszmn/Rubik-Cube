@@ -198,7 +198,7 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 	} else
 		console.log();
 
-	displayCube(STATE.c, cursorX, cursorY);
+	displayCube(STATE.c, cursorX, cursorY, true);
 
 	if (needsLaterClearScreen)
 		STATE.needsClearScreen = true;

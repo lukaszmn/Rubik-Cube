@@ -30,12 +30,12 @@ export const act = (cube, showSteps, steps) => {
 
 		if (showSteps === 'all') {
 			clear('Movement: ' + mov);
-			displayCube(cube);
+			displayCube(cube, undefined, undefined, true);
 
 			printDiffs(previousCube, cube);
 		} else if (showSteps === 'summary' && i === steps.length - 1) {
 			clear('Movements: ' + steps);
-			displayCube(cube);
+			displayCube(cube, undefined, undefined, true);
 
 			printDiffs(firstCube, cube);
 		}

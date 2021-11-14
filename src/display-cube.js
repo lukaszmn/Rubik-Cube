@@ -2,7 +2,7 @@ import { rotateFace } from './rotate-face';
 import { STATE } from './state';
 import { colors, highlight } from './terminal-output';
 
-export const displayCube = (cube, cursorX, cursorY) => {
+export const displayCube = (cube, cursorX, cursorY, hideHints) => {
 
 	const useColor = STATE.showColors;
 
@@ -44,7 +44,16 @@ export const displayCube = (cube, cursorX, cursorY) => {
 	for (const line of lines)
 		console.log(line);
 
-	console.log("  ↑x ↓x'  ←y →y'   rotate F: SHIFT+ ←z' →z");
+	if (!hideHints) {
+		console.log("  ↑x ↓x'  ←y →y'   rotate F: SHIFT+ ←z' →z");
+		if (STATE.savedRecordings) {
+			const recordingsLine = STATE.savedRecordings
+				.map(rec => `  [${rec.key}]: ${rec.movements}`)
+				.join('');
+			console.log(recordingsLine);
+		}
+	}
+
 	console.log();
 };
 
