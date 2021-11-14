@@ -37,24 +37,24 @@ const transformCube = (faceToRotate, edge1, edge2, edge3, edge4) => {
 	copyEdge(tmp, edge2);
 };
 
-const columnDown = (face, index) => ({
+const columnDown = (face, col) => ({
 	face,
-	edge: [ '00 10 20', '01 11 21', '02 12 22'][index].split(' '),
+	edge: Array.from('012').map(row => `${row}${col}`),
 });
 
-const columnUp = (face, index) => ({
+const columnUp = (face, col) => ({
 	face,
-	edge: [ '20 10 00', '21 11 01', '22 12 02'][index].split(' '),
+	edge: Array.from('210').map(row => `${row}${col}`),
 });
 
-const rowLeft = (face, index) => ({
+const rowLeft = (face, row) => ({
 	face,
-	edge: [ '00 01 02', '10 11 12', '20 21 22'][index].split(' '),
+	edge: Array.from('210').map(col => `${row}${col}`),
 });
 
-const rowRight = (face, index) => ({
-	edge: [ '02 01 00', '12 11 10', '22 21 20'][index].split(' '),
+const rowRight = (face, row) => ({
 	face,
+	edge: Array.from('012').map(col => `${row}${col}`),
 });
 
 const _movements = {
@@ -70,20 +70,8 @@ const _movements = {
 	S: cube => transformCube(null, columnDown(cube.R, 1), rowLeft(cube.D, 1), columnUp(cube.L, 1), rowRight(cube.U, 1)),
 };
 
-const prime = x => { x(); x(); x(); };
-
 export const movements = {
 	..._movements,
-	// U_: cube => prime(() => _movements.U(cube)),
-	// D_: cube => prime(() => _movements.D(cube)),
-	// L_: cube => prime(() => _movements.L(cube)),
-	// R_: cube => prime(() => _movements.R(cube)),
-	// F_: cube => prime(() => _movements.F(cube)),
-	// B_: cube => prime(() => _movements.B(cube)),
-
-	// M_: cube => prime(() => _movements.M(cube)),
-	// E_: cube => prime(() => _movements.E(cube)),
-	// S_: cube => prime(() => _movements.S(cube)),
 
 	// these undefined will be created in next statement
 	M_: undefined,
@@ -100,18 +88,14 @@ export const movements = {
 	f: cube => { _movements.F(cube); movements.S(cube); },
 	b: cube => { _movements.B(cube); movements.S_(cube); },
 
-	// u_: cube => prime(() => movements.u(cube)),
-	// d_: cube => prime(() => movements.d(cube)),
-	// r_: cube => prime(() => movements.r(cube)),
-	// l_: cube => prime(() => movements.l(cube)),
-	// f_: cube => prime(() => movements.f(cube)),
-	// b_: cube => prime(() => movements.b(cube)),
-
 	x: cube => { movements.r(cube); movements.L_(cube); },
 	y: cube => { movements.u(cube); movements.D_(cube); },
 	z: cube => { movements.f(cube); movements.B_(cube); },
-	// X_: cube => { _movements.X(cube); _movements.X(cube); _movements.X(cube); },
 };
 
-for (const key in movements)
-	movements[key + '_'] = cube => prime(() => movements[key](cube));
+const reverse = x => { x(); x(); x(); };
+
+for (const key in movements) {
+	if (!key.endsWith('_'))
+		movements[key + '_'] = cube => reverse(() => movements[key](cube));
+}

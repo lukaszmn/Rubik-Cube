@@ -4,7 +4,8 @@
   "description": "",
   "main": "rubik-full.js",
   "scripts": {
-    "start": "node --es-module-specifier-resolution=node rubik-full.js",
+    "start": "node --es-module-specifier-resolution=node --max-old-space-size=2500 rubik-full.js",
+    "test": "node --es-module-specifier-resolution=node movements-test.js",
     "lint": "npx eslint **/*.js"
   },
   "type": "module",
