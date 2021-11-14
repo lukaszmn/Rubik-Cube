@@ -11,6 +11,10 @@ const options = [
 loggers: { step: (step, solutionsCount, queueSize)=>{}, progress: percent=>{}, stepSolutions: newSolutionsCount=>{} }
 */
 
+export const timers = [];
+const _start = index => { timers[index] = timers[index] || 0; timers['t-_' + index] = process.hrtime(); };
+const _end = index => { timers[index] += process.hrtime(timers['t-_' + index])[1] / 1000000.0; delete timers['t-_' + index]; };
+
 export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 	let steps = [{
 		path: '',
@@ -19,10 +23,12 @@ export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 		// previousCubes: [],
 	}];
 
-	const maxLength = 40;
+	const maxLength = 140;
 	const allPreviousCubes = {};
 
+	_start('0 cacheMovements');
 	const movementsCache = cacheMovements(options);
+	_end('0 cacheMovements');
 
 	const solutions = [];
 	const targetInOneLineRegex = new RegExp('^' + toOneLine(targetCube).replace('-', '.') + '$');
@@ -30,8 +36,10 @@ export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 
 	let step = 0;
 	while (++step <= maxSteps) {
+		_start('1 loggers.step');
 		if (loggers.step)
 			loggers.step(step, solutions.length, steps.length);
+		_end('1 loggers.step');
 		const newSteps = [];
 
 		let newSolutionsCounter = 0;
@@ -43,38 +51,65 @@ export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 			// for (const option of options) {
 				const option = options[optionIndex];
 
+				_start('2 000 11 222');
 				// 000 11 222 33 444 55
-				if (step.path.length > 0 && +step.path[step.path.length - 1] === optionIndex) {
-					if (optionIndex === 1 || optionIndex === 3 || optionIndex === 5)
+				if (false && step.path.length > 0 && +step.path[step.path.length - 1] === optionIndex) {
+					if (optionIndex === 1 || optionIndex === 3 || optionIndex === 5) {
+						_end('2 000 11 222');
 						continue;
-					if ((optionIndex === 0 || optionIndex === 2 || optionIndex === 4) && step.path.length > 1 && +step.path[step.path.length - 2] === optionIndex)
+					}
+					if ((optionIndex === 0 || optionIndex === 2 || optionIndex === 4) && step.path.length > 1 && +step.path[step.path.length - 2] === optionIndex) {
+						_end('2 000 11 222');
 						continue;
+					}
 				}
+				_end('2 000 11 222');
 
+				_start('3 cacheTransform');
 				const newCubeArr = cacheTransform(movementsCache, step.cubeArr, option.name);
+				_end('3 cacheTransform');
+				_start('4 newCubeArr.join');
 				const newCubeStr = newCubeArr.join('');
 				// console.log(step.cube, option.name, newCube);
 
 				const newPath = step.path + optionIndex;
+				_end('4 newCubeArr.join');
 
+				_start('5 if step<maxSteps');
 				if (step !== maxSteps) {
+					_start('31 create newStep');
 					const newStep = {
 						path: newPath,
 						cubeArr: newCubeArr,
 						cubeStr: newCubeStr,
 						// previousCubes: [...step.previousCubes, step.cube],
 					};
+					_end('31 create newStep');
 
+					_start('32 exists newCubeStr');
+					const res = allPreviousCubes[newCubeStr];
+					_end('32 exists newCubeStr');
 					// if (newStep.previousCubes.includes(newCube))
-					if (allPreviousCubes[newCubeStr])
+					if (res) {
+						_end('5 if step<maxSteps');
 						continue;
+					}
 
+					_start('33 push newStep');
 					newSteps.push(newStep);
+					_end('33 push newStep');
+					_start('34 add newCubeStr field');
 					allPreviousCubes[newCubeStr] = true;
+					_end('34 add newCubeStr field');
 				}
+				_end('5 if step<maxSteps');
 
-				if (targetInOneLineRegex.test(newCubeStr)) {
+				_start('6 regex');
+				const res = targetInOneLineRegex.test(newCubeStr);
+				_end('6 regex');
+				if (res) {
 				// if (targetInOneLine === newCube) {
+					_start('7 solution');
 					const indicesPath = Array.from(newPath);
 					const path = indicesPath
 						.map(index => options[+index].name)
@@ -89,6 +124,7 @@ export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 						cube: toCube(newCubeStr),
 					});
 					++newSolutionsCounter;
+					_end('7 solution');
 				}
 			}
 
@@ -97,16 +133,21 @@ export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 			step.cubeStr = undefined;
 			// step.previousCubes = undefined;
 
+			_start('8 loggers.progress');
 			++totalStepCounter;
 			if (++stepCounter === 10000 && loggers.progress) {
 				stepCounter = 0;
 				loggers.progress(Math.round(100.0 * totalStepCounter / steps.length), newSolutionsCounter);
 			}
+			_end('8 loggers.progress');
 		}
 
+		_start('9 loggers.stepSolutions');
 		if (newSolutionsCounter > 0 && loggers.stepSolutions)
 			loggers.stepSolutions(newSolutionsCounter);
+		_end('9 loggers.stepSolutions');
 
+		_start('10 steps=newSteps.filter');
 		if (step < maxSteps) {
 			steps = newSteps.filter(step => {
 				const indicesPath = Array.from(step.path);
@@ -117,6 +158,7 @@ export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 				return length <= maxLength;
 			});
 		}
+		_end('10 steps=newSteps.filter');
 	}
 
 	return solutions;
@@ -171,12 +213,16 @@ const cacheMovement = (movementsCache, name, movements) => {
 const cacheTransform = (movementsCache, cubeOneLineArray, movementName) => {
 	const transform = movementsCache[movementName];
 
+	_start('20 cacheTransform: clone');
 	const after = [];
 	for (var i = 0, l = cubeOneLineArray.length; i < l; ++i)
-	after[i] = cubeOneLineArray[i];
+		after[i] = cubeOneLineArray[i];
+	_end('20 cacheTransform: clone');
 
+	_start('21 cacheTransform: edit');
 	for (const t of transform)
 		after[t[0]] = cubeOneLineArray[t[1]];
+	_end('21 cacheTransform: edit');
 	return after;
 }
 
