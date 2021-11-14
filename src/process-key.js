@@ -77,6 +77,8 @@ export const processKey = (keyName, shift) => {
 					console.log(`  <CURRENT>: ${STATE.recording}`);
 
 					question('Which key to save movements under? (0-9 or empty to cancel): ', answer => {
+						// TODO: fails after second time - answer contains movements
+						console.log(`ANSWER ${answer}`);
 						if (answer >= '0' && answer <= '9') {
 							// TODO: ask for name
 							STATE.savedRecordings = STATE.savedRecordings.filter(x => x.key !== answer);
