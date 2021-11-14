@@ -177,7 +177,7 @@ const cacheMovements = options => {
 const cacheMovement = (movementsCache, name, movements) => {
 	const cube = getIdentifierCube();
 	const before = toOneLine(cube);
-	act(cube, 'none', movements, false, false);
+	act(cube, 'none', movements);
 	const after = toOneLine(cube);
 	// console.log(before);
 	// console.log(after);

@@ -17,7 +17,7 @@ initState(cube);
 loadState();
 
 clear();
-displayCube(cube, true);
+displayCube(cube);
 
 emitKeypressEvents(process.stdin);
 if (process.stdin.isTTY)

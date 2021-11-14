@@ -31,7 +31,7 @@ export const processKey = (keyName, shift) => {
 				clear('Undo');
 				const previousCube = STATE.history.pop();
 				STATE.c = cloneCube(STATE.history[STATE.history.length - 1]);
-				displayCube(STATE.c, STATE.showColors);
+				displayCube(STATE.c);
 
 				printDiffs(previousCube, STATE.c);
 			}
@@ -103,7 +103,7 @@ export const processKey = (keyName, shift) => {
 
 		case 'f4':
 			question('Type movements (UDLRFB udlrfb MES xyz): ', answer => {
-				act(STATE.c, 'summary', answer, STATE.showColors, STATE.showDiff !== DIFF_MODE.NONE);
+				act(STATE.c, 'summary', answer);
 				STATE.history.push(cloneCube(STATE.c));
 				STATE.needsClearScreen = true;
 			});
@@ -137,7 +137,7 @@ export const processKey = (keyName, shift) => {
 			STATE.c = STATE.showColors ? readCube(targetCube) : getIdentifierCube();
 			clear('Reset');
 			STATE.history.push(cloneCube(STATE.c));
-			displayCube(STATE.c, STATE.showColors);
+			displayCube(STATE.c);
 			break;
 
 		case '`':
@@ -145,7 +145,7 @@ export const processKey = (keyName, shift) => {
 			STATE.c = scrambleRes.cube;
 			clear('Scramble: ' + scrambleRes.path);
 			STATE.history.push(cloneCube(STATE.c));
-			displayCube(STATE.c, STATE.showColors);
+			displayCube(STATE.c);
 			break;
 
 		case '.':
@@ -160,7 +160,7 @@ export const processKey = (keyName, shift) => {
 				// TODO: at higher res show identifiers as color RGBOWY + number 1-9
 			}
 			STATE.history.push(cloneCube(STATE.c));
-			displayCube(STATE.c, STATE.showColors);
+			displayCube(STATE.c);
 			break;
 	}
 
@@ -168,7 +168,7 @@ export const processKey = (keyName, shift) => {
 
 	const savedRecordingForKey = STATE.savedRecordings.find(x => x.key === keyName);
 	if (savedRecordingForKey) {
-		act(STATE.c, 'summary', savedRecordingForKey.movements, STATE.showColors, STATE.showDiff !== DIFF_MODE.NONE);
+		act(STATE.c, 'summary', savedRecordingForKey.movements);
 		STATE.history.push(cloneCube(STATE.c));
 		STATE.needsClearScreen = true;
 		return;
@@ -179,7 +179,7 @@ export const processKey = (keyName, shift) => {
 		const visibleMovement = movKey.replace('_', "'");
 		clear('Movement: ' + visibleMovement);
 		mov(STATE.c);
-		displayCube(STATE.c, STATE.showColors);
+		displayCube(STATE.c);
 		STATE.history.push(cloneCube(STATE.c));
 
 		if (STATE.mode === MODE.RECORD)

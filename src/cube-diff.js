@@ -6,13 +6,13 @@ export const printDiffs = (previousCube, currentCube) => {
 		return;
 
 	console.log('\n\nPREVIOUS CUBE:');
-	displayCube(getCubeDiff(previousCube, currentCube), STATE.showColors);
+	displayCube(getCubeDiff(previousCube, currentCube));
 
 	if (STATE.showDiff === DIFF_MODE.PREVIOUS)
 		return;
 
 	console.log('\n\nCURRENT CUBE:');
-	displayCube(getCubeDiff(currentCube, previousCube), STATE.showColors);
+	displayCube(getCubeDiff(currentCube, previousCube));
 };
 
 const getCubeDiff = (previousCube, currentCube) => ({

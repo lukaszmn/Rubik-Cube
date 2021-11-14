@@ -109,7 +109,7 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 					STATE.mode = MODE.BROWSE;
 					STATE.needsClearScreen = true;
 					clear();
-					displayCube(STATE.c, STATE.showColors);
+					displayCube(STATE.c);
 					STATE.history.push(cloneCube(STATE.c));
 					break;
 
@@ -198,7 +198,7 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 	} else
 		console.log();
 
-	displayCube(STATE.c, STATE.showColors, cursorX, cursorY);
+	displayCube(STATE.c, cursorX, cursorY);
 
 	if (needsLaterClearScreen)
 		STATE.needsClearScreen = true;
