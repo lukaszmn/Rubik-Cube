@@ -2,6 +2,8 @@ import { toCube, toOneLine } from './src/cube-converters';
 import { getIdentifierCube } from './src/identifier-cube';
 import { movements } from './src/movements';
 
+/* eslint camelcase: "off" */
+
 const test_checkMovements_data = () => {
 	const expected = [
 		'0  012345678 9ABCDEFGH IJKLMNOPQ RSTUVWXYZ abcdefghi jklmnopqr',
@@ -49,7 +51,6 @@ const test_checkMovements_data = () => {
 
 	for (const name of Object.getOwnPropertyNames(movements).sort()) {
 		const mov = movements[name];
-		const prev = getIdentifierCube();
 		const next = getIdentifierCube();
 		mov(next);
 
@@ -86,10 +87,12 @@ const verifyConstraints = (movementName, prev, next) => {
 	const remainingCells = nextCells.filter(x => !prevCells.includes(x));
 
 	if (remainingCells.length !== 0)
-		throw new Error(`Previous and next cubes for movement ${movementName} are not equal - at least ${remainingCells.length} cells different`);
+		throw new Error(
+			`Previous and next cubes for movement ${movementName} are not equal - at least ${remainingCells.length} cells different`
+		);
 };
 
-const marked = toCube("1A2D-B4C3 1D4E-F5G6 4C3F-H6J7 3B2H-I7K8 2A1I-E8L5 6J7G-K5L8");
+const marked = toCube('1A2D-B4C3 1D4E-F5G6 4C3F-H6J7 3B2H-I7K8 2A1I-E8L5 6J7G-K5L8');
 
 const getEdges = cube => Array.from('ABCDEFGHIJKL').map(
 	s => getCubeLocations(s).map(

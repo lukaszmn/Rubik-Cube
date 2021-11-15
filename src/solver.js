@@ -59,7 +59,9 @@ export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 						_end('2 000 11 222');
 						continue;
 					}
-					if ((optionIndex === 0 || optionIndex === 2 || optionIndex === 4) && step.path.length > 1 && +step.path[step.path.length - 2] === optionIndex) {
+					if ((optionIndex === 0 || optionIndex === 2 || optionIndex === 4)
+						&& step.path.length > 1 && +step.path[step.path.length - 2] === optionIndex
+					) {
 						_end('2 000 11 222');
 						continue;
 					}
@@ -205,7 +207,7 @@ const cacheTransform = (movementsCache, cubeOneLineArray, movementName) => {
 
 	_start('20 cacheTransform: clone');
 	const after = [];
-	for (var i = 0, l = cubeOneLineArray.length; i < l; ++i)
+	for (let i = 0, l = cubeOneLineArray.length; i < l; ++i)
 		after[i] = cubeOneLineArray[i];
 	_end('20 cacheTransform: clone');
 
@@ -214,7 +216,7 @@ const cacheTransform = (movementsCache, cubeOneLineArray, movementName) => {
 		after[t[0]] = cubeOneLineArray[t[1]];
 	_end('21 cacheTransform: edit');
 	return after;
-}
+};
 
 // cacheMovements([{name: 'R', movements: 'R'}]);
 // console.log(movementsCache);

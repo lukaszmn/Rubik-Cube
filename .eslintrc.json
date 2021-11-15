@@ -27,6 +27,7 @@
         "block-spacing": ["error", "always"],
         "brace-style": ["warn", "1tbs", { "allowSingleLine": true }],
         "comma-dangle": ["error", "only-multiline"],
-        "new-cap": "off"
+        "new-cap": "off",
+        "operator-linebreak": "off"
     }
 }
