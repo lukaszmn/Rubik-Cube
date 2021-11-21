@@ -4,7 +4,7 @@ import { STATE } from './state';
 
 export const colors = {
 	Y: '\x1B[93mQ\x1B[37m',
-	B: '\x1B[94mQ\x1B[37m',
+	B: '\x1B[38;5;39mQ\x1B[37m',
 	R: '\x1B[91mQ\x1B[37m',
 	G: '\x1B[92mQ\x1B[37m',
 	O: '\x1B[38;5;214mQ\x1B[37m',
