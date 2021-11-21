@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import { cloneCube } from './clone-cube';
+import { colorCube, REPEAT_KEY_DIRECTION } from './color-cube';
 import { toCube, toOneLine } from './cube-converters';
 import { displayCube } from './display-cube';
 import { movements } from './movements';
@@ -11,6 +12,21 @@ import { clear, colors, highlight, logAndClearLine } from './terminal-output';
 import { validate } from './validate';
 
 let cursorX = 4, cursorY = 4;
+
+const repeatKey = {
+	originalCube: undefined,
+	key: undefined,
+	cx: undefined,
+	cy: undefined,
+	direction: undefined,
+	nextDirection: function() {
+		if (++this.direction > Object.getOwnPropertyNames(REPEAT_KEY_DIRECTION).length)
+			this.direction = 1;
+	},
+	reset: function() {
+		this.originalCube = this.key = this.cx = this.cy = this.direction = undefined;
+	},
+};
 
 export const processKeyInEdit = (keyName, shift, ctrl) => {
 	let movKey = undefined;
@@ -80,26 +96,42 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 				'_': { color: '-', face: true },
 				'-': { color: '-', face: false },
 			};
-			let face, cx, cy;
-			if (cursorX <= 3) { face = STATE.c.L; cx = cursorX; cy = cursorY - 3; }
-			else if (cursorX <= 6 && cursorY <= 3) { face = STATE.c.U; cx = cursorX - 3; cy = cursorY; }
-			else if (cursorX <= 6 && cursorY <= 6) { face = STATE.c.F; cx = cursorX - 3; cy = cursorY - 3; }
-			else if (cursorX <= 6 && cursorY <= 9) { face = STATE.c.D; cx = cursorX - 3; cy = cursorY - 6; }
-			else if (cursorX <= 9) { face = STATE.c.R; cx = cursorX - 6; cy = cursorY - 3; }
-			else if (cursorX <= 12) { face = STATE.c.B; cx = cursorX - 9; cy = cursorY - 3; }
+
+			let cx, cy, faceName;
+			if (cursorX <= 3) { faceName = 'L'; cx = cursorX; cy = cursorY - 3; }
+			else if (cursorX <= 6 && cursorY <= 3) { faceName = 'U'; cx = cursorX - 3; cy = cursorY; }
+			else if (cursorX <= 6 && cursorY <= 6) { faceName = 'F'; cx = cursorX - 3; cy = cursorY - 3; }
+			else if (cursorX <= 6 && cursorY <= 9) { faceName = 'D'; cx = cursorX - 3; cy = cursorY - 6; }
+			else if (cursorX <= 9) { faceName = 'R'; cx = cursorX - 6; cy = cursorY - 3; }
+			else if (cursorX <= 12) { faceName = 'B'; cx = cursorX - 9; cy = cursorY - 3; }
 
 			const color = keys[keyName].color;
 			const entireFace = keys[keyName].face;
 
-			if (face) {
-				face[cy - 1][cx - 1] = color;
-				if (entireFace) {
-					// upper case - color entire face
-					for (cx = 0; cx < 3; ++cx) {
-						for (cy = 0; cy < 3; ++cy)
-							face[cy][cx] = color;
+			if (faceName) {
+
+				let resetRepeatKey = true;
+				if (!entireFace && repeatKey.key === keyName && repeatKey.cx === cx && repeatKey.cy === cy) {
+					resetRepeatKey = false;
+					repeatKey.nextDirection();
+					STATE.c = cloneCube(repeatKey.originalCube);
+					colorCube(STATE.c, faceName, cx, cy, repeatKey.direction, color);
+				}
+
+				if (resetRepeatKey) {
+					if (!entireFace) {
+						repeatKey.cx = cx;
+						repeatKey.cy = cy;
+						repeatKey.direction = REPEAT_KEY_DIRECTION.cell;
+						repeatKey.key = keyName;
+						repeatKey.originalCube = cloneCube(STATE.c);
+						colorCube(STATE.c, faceName, cx, cy, REPEAT_KEY_DIRECTION.cell, color);
+					} else {
+						repeatKey.reset();
+						colorCube(STATE.c, faceName, cx, cy, REPEAT_KEY_DIRECTION.face, color);
 					}
 				}
+
 			}
 			break;
 
@@ -171,7 +203,7 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 		'| arrow keys - move cursor ' +
 		'| arrows + shift - move cube ' +
 		'| = - reset cube ' +
-		'| R/G/B/O/W/Y/- - place color, with shift - color entire face ' +
+		'| R/G/B/O/W/Y/- - place color, with shift - color entire face, repeat key for more modes ' +
 		'| CTRL + L/S - load/save state'
 	);
 	console.log();
