@@ -1,22 +1,42 @@
 import { STATE } from './state';
 
 // https://github.com/dariuszp/colog/blob/master/src/colog.js
+// https://en.wikipedia.org/wiki/ANSI_escape_code#CSI_(Control_Sequence_Introducer)_sequences
+
+const CODE = s => `\x1B[${s}`;
+const FONT = s => CODE(s) + 'm';
+const FOREGROUND = {
+	DEFAULT: FONT(39),
+	BRIGHT_RED: FONT(91),
+	BRIGHT_GREEN: FONT(92),
+	BRIGHT_YELLOW: FONT(93),
+	BRIGHT_WHITE: FONT(97),
+	RGB: index => FONT('38;5;' + index),
+};
+const BACKGROUND = {
+	DEFAULT: FONT(49),
+	CYAN: FONT(46),
+	RGB: index => FONT('48;5;' + index),
+};
+const SCREEN = {
+	ERASE: CODE('2J'),
+	MOVE_CURSOR_UP: lines => CODE(lines + 'A'),
+}
 
 export const colors = {
-	Y: '\x1B[93mQ\x1B[37m',
-	B: '\x1B[38;5;39mQ\x1B[37m',
-	R: '\x1B[91mQ\x1B[37m',
-	G: '\x1B[92mQ\x1B[37m',
-	O: '\x1B[38;5;214mQ\x1B[37m',
-	W: '\x1B[97mQ\x1B[37m',
+	Y: FOREGROUND.BRIGHT_YELLOW + 'Q' + FOREGROUND.DEFAULT,
+	B: FOREGROUND.RGB(39) + 'Q' + FOREGROUND.DEFAULT,
+	R: FOREGROUND.BRIGHT_RED + 'Q' + FOREGROUND.DEFAULT,
+	G: FOREGROUND.BRIGHT_GREEN + 'Q' + FOREGROUND.DEFAULT,
+	O: FOREGROUND.RGB(214) + 'Q' + FOREGROUND.DEFAULT,
+	W: FOREGROUND.BRIGHT_WHITE + 'Q' + FOREGROUND.DEFAULT,
 };
 
-export const highlight = '\x1B[46mQ\x1B[49m';
+export const highlight = BACKGROUND.CYAN + 'Q' + BACKGROUND.DEFAULT;
+export const highlight2 = BACKGROUND.RGB(236) + 'Q' + BACKGROUND.DEFAULT;
 
 export const clearScreen = () => {
-	// https://en.wikipedia.org/wiki/ANSI_escape_code#CSI_(Control_Sequence_Introducer)_sequences
-	const clearScreen_ = '\x1B[2J';
-	console.log(clearScreen_);
+	console.log(SCREEN.ERASE);
 	STATE.needsClearScreen = false;
 };
 
@@ -31,9 +51,7 @@ export const clear = msg => {
 	if (STATE.needsClearScreen)
 		clearScreen();
 
-	// https://en.wikipedia.org/wiki/ANSI_escape_code#CSI_(Control_Sequence_Introducer)_sequences
-	const move100LinesUp = '\x1B[91' + '10' + 'A';
-	console.log(move100LinesUp);
+	console.log(SCREEN.MOVE_CURSOR_UP(100));
 	msg = msg ?? 'F1 - help';
 	logAndClearLine(msg);
 };
