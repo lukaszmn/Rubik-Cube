@@ -36,34 +36,38 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 		case 'left':
 			if (shift)
 				movKey = 'y';
-			else if (cursorX > 1 && cursorY >= 4 && cursorY <= 6)
+			else if (ctrl)
+				cursorX -= 3;
+			else
 				--cursorX;
-			else if (cursorX > 4 && (cursorY < 4 || cursorY > 6))
-				--cursorX;
+			[cursorX, cursorY] = getValidCursorPosition(cursorX, cursorY, keyName);
 			break;
 		case 'right':
 			if (shift)
 				movKey = 'y_';
-			else if (cursorX < 12 && cursorY >= 4 && cursorY <= 6)
+			else if (ctrl)
+				cursorX += 3;
+			else
 				++cursorX;
-			else if (cursorX < 6 && (cursorY < 4 || cursorY > 6))
-				++cursorX;
+			[cursorX, cursorY] = getValidCursorPosition(cursorX, cursorY, keyName);
 			break;
 		case 'up':
 			if (shift)
 				movKey = 'x';
-			else if (cursorY > 1 && cursorX >= 4 && cursorX <= 6)
+			else if (ctrl)
+				cursorY -= 3;
+			else
 				--cursorY;
-			else if (cursorY > 4 && (cursorX < 4 || cursorX > 6))
-				--cursorY;
+			[cursorX, cursorY] = getValidCursorPosition(cursorX, cursorY, keyName);
 			break;
 		case 'down':
 			if (shift)
 				movKey = 'x_';
-			else if (cursorY < 9 && cursorX >= 4 && cursorX <= 6)
+			else if (ctrl)
+				cursorY += 3;
+			else
 				++cursorY;
-			else if (cursorY < 6 && (cursorX < 4 || cursorX > 6))
-				++cursorY;
+			[cursorX, cursorY] = getValidCursorPosition(cursorX, cursorY, keyName);
 			break;
 
 		case 'W':
@@ -201,9 +205,14 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 	console.log(
 		'F2 - exit edit ' +
 		'| arrow keys - move cursor ' +
-		'| arrows + shift - move cube ' +
+		'| SHIFT + arrows - move cube ' +
+		'| CTRL + arrows - go to face ' +
+		'| PG UP/DOWN - cursor auto movement mode '
+	);
+	console.log(
+		'               ' +
+		'| R/G/B/O/W/Y/- - place color, with SHIFT - color entire face, repeat key for more modes ' +
 		'| = - reset cube ' +
-		'| R/G/B/O/W/Y/- - place color, with shift - color entire face, repeat key for more modes ' +
 		'| CTRL + L/S - load/save state'
 	);
 	console.log();
@@ -234,4 +243,25 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 
 	if (needsLaterClearScreen)
 		STATE.needsClearScreen = true;
+};
+
+const getValidCursorPosition = (cursorX, cursorY, direction) => {
+	const horizontal = direction === 'left' || direction === 'right';
+	const vertical = !horizontal;
+
+	if (horizontal && cursorY >= 4 && cursorY <= 6) {
+		cursorX = Math.max(cursorX, 1);
+		cursorX = Math.min(cursorX, 12);
+	} else if (horizontal && cursorY >= 1 && cursorY <= 9) {
+		cursorX = Math.max(cursorX, 4);
+		cursorX = Math.min(cursorX, 6);
+	} else if (vertical && cursorX >= 4 && cursorX <= 6) {
+		cursorY = Math.max(cursorY, 1);
+		cursorY = Math.min(cursorY, 9);
+	} else if (vertical && cursorX >= 1 && cursorX <= 12) {
+		cursorY = Math.max(cursorY, 4);
+		cursorY = Math.min(cursorY, 6);
+	}
+
+	return [ cursorX, cursorY ];
 };
