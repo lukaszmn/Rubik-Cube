@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { cloneCube } from './clone-cube';
-import { colorCube, REPEAT_KEY_DIRECTION } from './color-cube';
+import { paintCube, REPEAT_KEY_DIRECTION } from './paint-cube';
 import { toCube, toOneLine } from './cube-converters';
 import { displayCube } from './display-cube';
 import { movements } from './movements';
@@ -119,7 +119,7 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 					resetRepeatKey = false;
 					repeatKey.nextDirection();
 					STATE.c = cloneCube(repeatKey.originalCube);
-					colorCube(STATE.c, faceName, cx, cy, repeatKey.direction, color);
+					paintCube(STATE.c, faceName, cx, cy, repeatKey.direction, color);
 				}
 
 				if (resetRepeatKey) {
@@ -129,10 +129,10 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 						repeatKey.direction = REPEAT_KEY_DIRECTION.cell;
 						repeatKey.key = keyName;
 						repeatKey.originalCube = cloneCube(STATE.c);
-						colorCube(STATE.c, faceName, cx, cy, REPEAT_KEY_DIRECTION.cell, color);
+						paintCube(STATE.c, faceName, cx, cy, REPEAT_KEY_DIRECTION.cell, color);
 					} else {
 						repeatKey.reset();
-						colorCube(STATE.c, faceName, cx, cy, REPEAT_KEY_DIRECTION.face, color);
+						paintCube(STATE.c, faceName, cx, cy, REPEAT_KEY_DIRECTION.face, color);
 					}
 				}
 

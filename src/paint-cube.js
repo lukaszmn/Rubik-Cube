@@ -1,4 +1,4 @@
-export const colorCube = (cube, faceName, cx, cy, direction, color) => {
+export const paintCube = (cube, faceName, cx, cy, direction, color) => {
 
 	const face = cube[faceName];
 	--cx;
