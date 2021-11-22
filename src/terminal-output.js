@@ -4,24 +4,28 @@ import { STATE } from './state';
 // https://en.wikipedia.org/wiki/ANSI_escape_code#CSI_(Control_Sequence_Introducer)_sequences
 
 const CODE = s => `\x1B[${s}`;
-const FONT = s => CODE(s) + 'm';
+const FONTCODE = s => CODE(s) + 'm';
+const FONT = {
+	DEFAULT: FONTCODE(0),
+	UNDERLINE: FONTCODE(4),
+};
 const FOREGROUND = {
-	DEFAULT: FONT(39),
-	BRIGHT_RED: FONT(91),
-	BRIGHT_GREEN: FONT(92),
-	BRIGHT_YELLOW: FONT(93),
-	BRIGHT_WHITE: FONT(97),
-	RGB: index => FONT('38;5;' + index),
+	DEFAULT: FONTCODE(39),
+	BRIGHT_RED: FONTCODE(91),
+	BRIGHT_GREEN: FONTCODE(92),
+	BRIGHT_YELLOW: FONTCODE(93),
+	BRIGHT_WHITE: FONTCODE(97),
+	RGB: index => FONTCODE('38;5;' + index),
 };
 const BACKGROUND = {
-	DEFAULT: FONT(49),
-	CYAN: FONT(46),
-	RGB: index => FONT('48;5;' + index),
+	DEFAULT: FONTCODE(49),
+	CYAN: FONTCODE(46),
+	RGB: index => FONTCODE('48;5;' + index),
 };
 const SCREEN = {
 	ERASE: CODE('2J'),
 	MOVE_CURSOR_UP: lines => CODE(lines + 'A'),
-}
+};
 
 export const colors = {
 	Y: FOREGROUND.BRIGHT_YELLOW + 'Q' + FOREGROUND.DEFAULT,
@@ -32,8 +36,8 @@ export const colors = {
 	W: FOREGROUND.BRIGHT_WHITE + 'Q' + FOREGROUND.DEFAULT,
 };
 
-export const highlight = BACKGROUND.CYAN + 'Q' + BACKGROUND.DEFAULT;
-export const highlight2 = BACKGROUND.RGB(236) + 'Q' + BACKGROUND.DEFAULT;
+export const highlight = BACKGROUND.CYAN + 'Q' + FONT.DEFAULT;
+export const highlight2 = BACKGROUND.RGB(238) + FONT.UNDERLINE + 'Q' + FONT.DEFAULT;
 
 export const clearScreen = () => {
 	console.log(SCREEN.ERASE);

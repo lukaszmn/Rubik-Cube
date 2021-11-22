@@ -1,7 +1,8 @@
 import * as fs from 'fs';
 import { cloneCube } from './clone-cube';
-import { paintCube, REPEAT_KEY_DIRECTION } from './paint-cube';
+import { getCellsInDirection, paintCube, REPEAT_KEY_DIRECTION } from './paint-cube';
 import { toCube, toOneLine } from './cube-converters';
+import { convertCursorPositionFromFace, convertCursorPositionToFace } from './cursor-position';
 import { displayCube } from './display-cube';
 import { movements } from './movements';
 import { readCube } from './read-cube';
@@ -16,21 +17,69 @@ let cursorX = 4, cursorY = 4;
 const repeatKey = {
 	originalCube: undefined,
 	key: undefined,
-	cx: undefined,
-	cy: undefined,
+	cx02: undefined,
+	cy02: undefined,
 	direction: undefined,
 	nextDirection: function() {
 		if (++this.direction > Object.getOwnPropertyNames(REPEAT_KEY_DIRECTION).length)
 			this.direction = 1;
 	},
 	reset: function() {
-		this.originalCube = this.key = this.cx = this.cy = this.direction = undefined;
+		this.originalCube = this.key = this.cx02 = this.cy02 = this.direction = undefined;
+	},
+};
+
+const autoMovement = {
+	highlightCells: undefined, // { highlight(1-2), face, x02, y02 }
+	faceName: undefined,
+	cx02: undefined, // 0-2
+	cy02: undefined, // 0-2
+	direction: undefined,
+	index: undefined,
+	prevDirection: function() {
+		if (--this.direction < 1)
+			this.direction = Object.getOwnPropertyNames(REPEAT_KEY_DIRECTION).length;
+	},
+	nextDirection: function() {
+		if (++this.direction > Object.getOwnPropertyNames(REPEAT_KEY_DIRECTION).length)
+			this.direction = 1;
+	},
+	reset: function() {
+		this.faceName = this.cx02 = this.cy02 = this.direction = undefined;
+		this.index = 0;
+
+		const res = convertCursorPositionToFace(cursorX, cursorY);
+		this.highlightCells = [
+			{ highlight: 1, face: res.faceName, x02: res.cx02, y02: res.cy02 }
+		];
+
+		// debug
+		// const res1 = convertCursorPositionFromFace(res.faceName, res.cx02, res.cy02);
+		// if (res1.cursorX_1_12 !== cursorX || res1.cursorY_1_9 !== cursorY)
+		// 	console.log({ok: res1.cursorX_1_12 === cursorX && res1.cursorY_1_9 === cursorY, cursorX, cursorY, res1});
+	},
+	proceed: function() {
+		if (this.highlightCells.length <= 1)
+			return;
+
+		const prevCell = this.highlightCells[this.index];
+		if (++this.index >= this.highlightCells.length)
+			this.index = 0;
+		const nextCell = this.highlightCells[this.index];
+		prevCell.highlight = 2;
+		nextCell.highlight = 1;
+		const res = convertCursorPositionFromFace(nextCell.face, nextCell.x02, nextCell.y02);
+		cursorX = res.cursorX_1_12;
+		cursorY = res.cursorY_1_9;
 	},
 };
 
 export const processKeyInEdit = (keyName, shift, ctrl) => {
 	let movKey = undefined;
 	let needsLaterClearScreen = false;
+
+	if (autoMovement.cx02 === undefined)
+		autoMovement.reset();
 
 	switch (keyName) {
 		case 'left':
@@ -41,7 +90,9 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 			else
 				--cursorX;
 			[cursorX, cursorY] = getValidCursorPosition(cursorX, cursorY, keyName);
+			autoMovement.reset();
 			break;
+
 		case 'right':
 			if (shift)
 				movKey = 'y_';
@@ -50,7 +101,9 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 			else
 				++cursorX;
 			[cursorX, cursorY] = getValidCursorPosition(cursorX, cursorY, keyName);
+			autoMovement.reset();
 			break;
+
 		case 'up':
 			if (shift)
 				movKey = 'x';
@@ -59,7 +112,9 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 			else
 				--cursorY;
 			[cursorX, cursorY] = getValidCursorPosition(cursorX, cursorY, keyName);
+			autoMovement.reset();
 			break;
+
 		case 'down':
 			if (shift)
 				movKey = 'x_';
@@ -68,6 +123,7 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 			else
 				++cursorY;
 			[cursorX, cursorY] = getValidCursorPosition(cursorX, cursorY, keyName);
+			autoMovement.reset();
 			break;
 
 		case 'W':
@@ -101,42 +157,66 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 				'-': { color: '-', face: false },
 			};
 
-			let cx, cy, faceName;
-			if (cursorX <= 3) { faceName = 'L'; cx = cursorX; cy = cursorY - 3; }
-			else if (cursorX <= 6 && cursorY <= 3) { faceName = 'U'; cx = cursorX - 3; cy = cursorY; }
-			else if (cursorX <= 6 && cursorY <= 6) { faceName = 'F'; cx = cursorX - 3; cy = cursorY - 3; }
-			else if (cursorX <= 6 && cursorY <= 9) { faceName = 'D'; cx = cursorX - 3; cy = cursorY - 6; }
-			else if (cursorX <= 9) { faceName = 'R'; cx = cursorX - 6; cy = cursorY - 3; }
-			else if (cursorX <= 12) { faceName = 'B'; cx = cursorX - 9; cy = cursorY - 3; }
+			const res1 = convertCursorPositionToFace(cursorX, cursorY);
 
 			const color = keys[keyName].color;
 			const entireFace = keys[keyName].face;
 
-			if (faceName) {
+			if (res1.faceName) {
 
 				let resetRepeatKey = true;
-				if (!entireFace && repeatKey.key === keyName && repeatKey.cx === cx && repeatKey.cy === cy) {
+				if (!entireFace && repeatKey.key === keyName && repeatKey.cx02 === res1.cx02 && repeatKey.cy02 === res1.cy02) {
 					resetRepeatKey = false;
 					repeatKey.nextDirection();
 					STATE.c = cloneCube(repeatKey.originalCube);
-					paintCube(STATE.c, faceName, cx, cy, repeatKey.direction, color);
+					paintCube(STATE.c, res1.faceName, res1.cx02, res1.cy02, repeatKey.direction, color);
 				}
 
 				if (resetRepeatKey) {
 					if (!entireFace) {
-						repeatKey.cx = cx;
-						repeatKey.cy = cy;
+						repeatKey.cx02 = res1.cx02;
+						repeatKey.cy02 = res1.cy02;
 						repeatKey.direction = REPEAT_KEY_DIRECTION.cell;
 						repeatKey.key = keyName;
 						repeatKey.originalCube = cloneCube(STATE.c);
-						paintCube(STATE.c, faceName, cx, cy, REPEAT_KEY_DIRECTION.cell, color);
+						paintCube(STATE.c, res1.faceName, res1.cx02, res1.cy02, REPEAT_KEY_DIRECTION.cell, color);
 					} else {
 						repeatKey.reset();
-						paintCube(STATE.c, faceName, cx, cy, REPEAT_KEY_DIRECTION.face, color);
+						paintCube(STATE.c, res1.faceName, res1.cx02, res1.cy02, REPEAT_KEY_DIRECTION.face, color);
 					}
 				}
 
+				autoMovement.proceed();
+
 			}
+			break;
+
+		case 'pagedown':
+		case 'pageup':
+			const res2 = convertCursorPositionToFace(cursorX, cursorY);
+
+			if (autoMovement.faceName === res2.faceName && autoMovement.cx02 === res2.cx02 && autoMovement.cy02 === res2.cy02) {
+				if (keyName === 'pagedown')
+					autoMovement.nextDirection();
+				else
+					autoMovement.prevDirection();
+			} else {
+				autoMovement.faceName = res2.faceName;
+				autoMovement.cx02 = res2.cx02;
+				autoMovement.cy02 = res2.cy02;
+				autoMovement.direction = REPEAT_KEY_DIRECTION.cell;
+				autoMovement.nextDirection();
+			}
+
+			let currentIndex = 0;
+			autoMovement.highlightCells = getCellsInDirection(res2.faceName, res2.cx02, res2.cy02, autoMovement.direction)
+				.map((cell, index) => {
+					const highlight = (cell.face === res2.faceName && cell.x === res2.cx02 && cell.y === res2.cy02) ? 1 : 2;
+					if (highlight === 1)
+						currentIndex = index;
+					return { highlight, face: cell.face, x02: cell.x, y02: cell.y };
+				});
+			autoMovement.index = currentIndex;
 			break;
 
 		case 'f2':
@@ -239,7 +319,7 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 	} else
 		console.log();
 
-	displayCube(STATE.c, cursorX, cursorY, true);
+	displayCube(STATE.c, autoMovement.highlightCells, true);
 
 	if (needsLaterClearScreen)
 		STATE.needsClearScreen = true;

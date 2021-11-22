@@ -28,6 +28,7 @@
         "brace-style": ["warn", "1tbs", { "allowSingleLine": true }],
         "comma-dangle": ["error", "only-multiline"],
         "new-cap": "off",
-        "operator-linebreak": "off"
+        "operator-linebreak": "off",
+        "camelcase": "off"
     }
 }

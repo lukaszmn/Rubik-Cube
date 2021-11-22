@@ -1,125 +1,55 @@
-export const paintCube = (cube, faceName, cx, cy, direction, color) => {
+export const paintCube = (cube, faceName, cx02, cy02, direction, color) => {
+	const cells = getCellsInDirection(faceName, cx02, cy02, direction);
+	for (const cell of cells)
+		cube[cell.face][cell.y][cell.x] = color;
+};
 
-	const face = cube[faceName];
-	--cx;
-	--cy;
+export const getCellsInDirection = (faceName, cx02, cy02, direction) => {
+
+	const cells = [];
+	const addCell = (x, y, face) => cells.push({ x, y, face: face || faceName });
 
 	switch (direction) {
 
 		case REPEAT_KEY_DIRECTION.cell:
-			face[cy][cx] = color;
+			addCell(cx02, cy02);
 			break;
 
 		case REPEAT_KEY_DIRECTION.face:
-			for (cx = 0; cx < 3; ++cx) {
-				for (cy = 0; cy < 3; ++cy)
-					face[cy][cx] = color;
+			for (cy02 = 0; cy02 < 3; ++cy02) {
+				for (cx02 = 0; cx02 < 3; ++cx02)
+					addCell(cx02, cy02);
 			}
 			break;
 
 		case REPEAT_KEY_DIRECTION.rowFace:
-			for (cx = 0; cx < 3; ++cx)
-				face[cy][cx] = color;
+			for (cx02 = 0; cx02 < 3; ++cx02)
+				addCell(cx02, cy02);
 			break;
 
 		case REPEAT_KEY_DIRECTION.columnFace:
-			for (cy = 0; cy < 3; ++cy)
-				face[cy][cx] = color;
+			for (cy02 = 0; cy02 < 3; ++cy02)
+				addCell(cx02, cy02);
 			break;
 
 		case REPEAT_KEY_DIRECTION.rowAll:
-			const rowMap = {
-				U: row => [
-					{ face: 'U', row: row, columns: '012' },
-					{ face: 'R', rows: '012', column: 2 - row },
-					{ face: 'D', row: 2 - row, columns: '210' },
-					{ face: 'L', rows: '210', column: row },
-				],
-				D: row => [
-					{ face: 'D', row: row, columns: '210' },
-					{ face: 'L', rows: '210', column: 2 - row },
-					{ face: 'U', row: 2 - row, columns: '012' },
-					{ face: 'R', rows: '012', column: row },
-				],
-				L: row => [
-					{ face: 'L', row: row, columns: '012' },
-					{ face: 'F', row: row, columns: '012' },
-					{ face: 'R', row: row, columns: '012' },
-					{ face: 'B', row: row, columns: '012' },
-				],
-				F: row => [
-					{ face: 'F', row: row, columns: '012' },
-					{ face: 'R', row: row, columns: '012' },
-					{ face: 'B', row: row, columns: '012' },
-					{ face: 'L', row: row, columns: '012' },
-				],
-				R: row => [
-					{ face: 'R', row: row, columns: '012' },
-					{ face: 'B', row: row, columns: '012' },
-					{ face: 'L', row: row, columns: '012' },
-					{ face: 'F', row: row, columns: '012' },
-				],
-				B: row => [
-					{ face: 'B', row: row, columns: '012' },
-					{ face: 'L', row: row, columns: '012' },
-					{ face: 'F', row: row, columns: '012' },
-					{ face: 'R', row: row, columns: '012' },
-				],
-			};
-			const rowInfo = rowMap[faceName](cy);
-			// console.log({x: 'rowAll', faceName, cx, cy, rowInfo});
+			const rowInfo = getRowInfo(faceName, cy02);
+			// console.log({x: 'rowAll', faceName, cx02, cy02, rowInfo});
 			const cells1 = getCells(rowInfo);
 			for (const cell of cells1)
-				cube[cell.face][cell.row][cell.column] = color;
+				addCell(cell.column, cell.row, cell.face);
 			break;
 
 		case REPEAT_KEY_DIRECTION.columnAll:
-			const columnMap = {
-				U: column => [
-					{ face: 'U', rows: '012', column: column },
-					{ face: 'F', rows: '012', column: column },
-					{ face: 'D', rows: '012', column: column },
-					{ face: 'B', rows: '210', column: 2 - column },
-				],
-				F: column => [
-					{ face: 'F', rows: '012', column: column },
-					{ face: 'D', rows: '012', column: column },
-					{ face: 'B', rows: '210', column: 2 - column },
-					{ face: 'U', rows: '012', column: column },
-				],
-				D: column => [
-					{ face: 'D', rows: '012', column: column },
-					{ face: 'B', rows: '210', column: 2 - column },
-					{ face: 'U', rows: '012', column: column },
-					{ face: 'F', rows: '012', column: column },
-				],
-				B: column => [
-					{ face: 'B', rows: '210', column: column },
-					{ face: 'U', rows: '012', column: 2 - column },
-					{ face: 'F', rows: '012', column: 2 - column },
-					{ face: 'D', rows: '012', column: 2 - column },
-				],
-				L: column => [
-					{ face: 'L', rows: '210', column: column },
-					{ face: 'U', row: column, columns: '012' },
-					{ face: 'R', rows: '012', column: 2 - column },
-					{ face: 'D', row: 2 - column, columns: '210' },
-				],
-				R: column => [
-					{ face: 'R', rows: '012', column: column },
-					{ face: 'D', row: column, columns: '210' },
-					{ face: 'L', rows: '210', column: 2 - column },
-					{ face: 'U', row: 2 - column, columns: '012' },
-				],
-			};
-			const columnInfo = columnMap[faceName](cx);
-			// console.log({x: 'columnAll', faceName, cx, cy, columnInfo});
+			const columnInfo = getColumnInfo(faceName, cx02);
+			// console.log({x: 'columnAll', faceName, cx, cy02, columnInfo});
 			const cells2 = getCells(columnInfo);
 			for (const cell of cells2)
-				cube[cell.face][cell.row][cell.column] = color;
+				addCell(cell.column, cell.row, cell.face);
 			break;
-
 	}
+
+	return cells;
 };
 
 export const REPEAT_KEY_DIRECTION = {
@@ -129,6 +59,90 @@ export const REPEAT_KEY_DIRECTION = {
 	rowAll: 4,
 	columnFace: 5,
 	columnAll: 6,
+};
+
+const getRowInfo = (faceName, cy02) => {
+	const rowMap = {
+		U: row => [
+			{ face: 'U', row: row, columns: '012' },
+			{ face: 'R', rows: '012', column: 2 - row },
+			{ face: 'D', row: 2 - row, columns: '210' },
+			{ face: 'L', rows: '210', column: row },
+		],
+		D: row => [
+			{ face: 'D', row: row, columns: '210' },
+			{ face: 'L', rows: '210', column: 2 - row },
+			{ face: 'U', row: 2 - row, columns: '012' },
+			{ face: 'R', rows: '012', column: row },
+		],
+		L: row => [
+			{ face: 'L', row: row, columns: '012' },
+			{ face: 'F', row: row, columns: '012' },
+			{ face: 'R', row: row, columns: '012' },
+			{ face: 'B', row: row, columns: '012' },
+		],
+		F: row => [
+			{ face: 'F', row: row, columns: '012' },
+			{ face: 'R', row: row, columns: '012' },
+			{ face: 'B', row: row, columns: '012' },
+			{ face: 'L', row: row, columns: '012' },
+		],
+		R: row => [
+			{ face: 'R', row: row, columns: '012' },
+			{ face: 'B', row: row, columns: '012' },
+			{ face: 'L', row: row, columns: '012' },
+			{ face: 'F', row: row, columns: '012' },
+		],
+		B: row => [
+			{ face: 'B', row: row, columns: '012' },
+			{ face: 'L', row: row, columns: '012' },
+			{ face: 'F', row: row, columns: '012' },
+			{ face: 'R', row: row, columns: '012' },
+		],
+	};
+	return rowMap[faceName](cy02);
+};
+
+const getColumnInfo = (faceName, cx02) => {
+	const columnMap = {
+		U: column => [
+			{ face: 'U', rows: '012', column: column },
+			{ face: 'F', rows: '012', column: column },
+			{ face: 'D', rows: '012', column: column },
+			{ face: 'B', rows: '210', column: 2 - column },
+		],
+		F: column => [
+			{ face: 'F', rows: '012', column: column },
+			{ face: 'D', rows: '012', column: column },
+			{ face: 'B', rows: '210', column: 2 - column },
+			{ face: 'U', rows: '012', column: column },
+		],
+		D: column => [
+			{ face: 'D', rows: '012', column: column },
+			{ face: 'B', rows: '210', column: 2 - column },
+			{ face: 'U', rows: '012', column: column },
+			{ face: 'F', rows: '012', column: column },
+		],
+		B: column => [
+			{ face: 'B', rows: '210', column: column },
+			{ face: 'U', rows: '012', column: 2 - column },
+			{ face: 'F', rows: '012', column: 2 - column },
+			{ face: 'D', rows: '012', column: 2 - column },
+		],
+		L: column => [
+			{ face: 'L', rows: '210', column: column },
+			{ face: 'U', row: column, columns: '012' },
+			{ face: 'R', rows: '012', column: 2 - column },
+			{ face: 'D', row: 2 - column, columns: '210' },
+		],
+		R: column => [
+			{ face: 'R', rows: '012', column: column },
+			{ face: 'D', row: column, columns: '210' },
+			{ face: 'L', rows: '210', column: 2 - column },
+			{ face: 'U', row: 2 - column, columns: '012' },
+		],
+	};
+	return columnMap[faceName](cx02);
 };
 
 const getCells = facesInfo => {

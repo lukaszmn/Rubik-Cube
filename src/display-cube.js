@@ -1,8 +1,8 @@
 import { rotateFace } from './rotate-face';
 import { STATE } from './state';
-import { colors, highlight } from './terminal-output';
+import { colors, highlight, highlight2 } from './terminal-output';
 
-export const displayCube = (cube, cursorX, cursorY, hideHints) => {
+export const displayCube = (cube, highlightCells, hideHints) => {
 
 	const useColor = STATE.showColors;
 
@@ -38,7 +38,7 @@ export const displayCube = (cube, cursorX, cursorY, hideHints) => {
 	*/
 
 	const lines = join(
-		getCube(cube, useColor, cursorX, cursorY),
+		getCube(cube, useColor, highlightCells),
 		smallScreen ? null : getLeft(),
 		smallScreen ? null : getFront(),
 		smallScreen ? null : getRight(),
@@ -67,7 +67,7 @@ export const displayCube = (cube, cursorX, cursorY, hideHints) => {
 
 const toLine = arr => arr.reduce((prev, curr) => [...prev, ...curr], []);
 
-const getCube = (cube, useColor, cursorX, cursorY) => {
+const getCube = (cube, useColor, highlightCells) => {
 	const lines = [
 		' Cube:            ',
 		'                  ',
@@ -96,10 +96,26 @@ const getCube = (cube, useColor, cursorX, cursorY) => {
 		B: toLine(cube.B),
 	};
 
-	const cx = cursorX + Math.floor((cursorX - 1) / 3);
-	const cy = cursorY + Math.floor((cursorY - 1) / 3);
+	const START = {
+		U: [6, 3],
+		L: [2, 7],
+		F: [6, 7],
+		R: [10, 7],
+		B: [14, 7],
+		D: [6, 11],
+	};
+	if (highlightCells) {
+		// convert {face, x02, y02, higlight(1-2)} to {abs_x(0-), abs_y(0-), highlight(1-2)}
+		// console.log('before', highlightCells);
+		highlightCells = highlightCells.map(cell => ({
+			highlight: cell.highlight,
+			x: START[cell.face][0] + cell.x02,
+			y: START[cell.face][1] + cell.y02,
+		}));
+		// console.log('after', highlightCells);
+	}
 
-	return colorize(lines, data, useColor, cx + 1, cy + 2);
+	return colorize(lines, data, useColor, highlightCells);
 };
 
 const getExtraCube = (cube, useColor) => {
@@ -225,14 +241,17 @@ const getSection = (title, face1, face2, face3, face4, face5, useColor) => {
 	return colorize(lines, data, useColor);
 };
 
-const colorize = (lines, data, useColor, cursorX, cursorY) => lines.map((line, rowIndex) => {
+const colorize = (lines, data, useColor, highlightCells) => lines.map((line, rowIndex) => {
 	let s = '';
 	let column = 0;
 	for (const ch of line) {
 		if (ch in data) {
 			const col = data[ch].splice(0, 1)[0];
 			const color = (useColor && colors[col]) || 'Q';
-			const h = cursorX === column && cursorY === rowIndex ? highlight : 'Q';
+			const highlightCell = highlightCells ? highlightCells.find(cell => cell.x === column && cell.y === rowIndex) : null;
+			const h = highlightCell
+				? highlightCell.highlight === 1 ? highlight : highlight2
+				: 'Q';
 			s += color.replace('Q', h).replace('Q', col);
 		} else
 			s += ch;

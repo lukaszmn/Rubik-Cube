@@ -80,9 +80,9 @@ const showSummary = () => {
 	console.log();
 	console.log('Summary:');
 	console.log('Initial cube:');
-	displayCube(STATE.optimize.source, undefined, undefined, true);
+	displayCube(STATE.optimize.source, undefined, true);
 	console.log('Target cube:');
-	displayCube(STATE.optimize.target, undefined, undefined, true);
+	displayCube(STATE.optimize.target, undefined, true);
 	console.log('Options:');
 	for (const option of STATE.optimize.options)
 		console.log(`  ${option.name}: ${option.movements}`);
@@ -101,6 +101,6 @@ const showSolution = solutions => {
 	console.log();
 	for (const solution of solutions) {
 		console.log(`Solution of length ${solution.length} for path: ${solution.path}`);
-		// displayCube(solution.cube, undefined, undefined, true);
+		// displayCube(solution.cube, undefined, true);
 	}
 };
