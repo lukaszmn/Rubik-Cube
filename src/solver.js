@@ -32,7 +32,7 @@ export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 	_end('0 cacheMovements');
 
 	const solutions = [];
-	const targetInOneLineRegex = new RegExp('^' + toOneLine(targetCube).replace('-', '.') + '$');
+	const targetInOneLineRegex = new RegExp('^' + toOneLine(targetCube).replace(/-/g, '.') + '$');
 	// const targetInOneLine = toOneLine(targetCube);
 
 	let step = 0;
