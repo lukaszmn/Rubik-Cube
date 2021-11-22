@@ -1,5 +1,5 @@
 import { rotateFace } from './rotate-face';
-import { STATE } from './state';
+import { MODE, STATE } from './state';
 import { colors, grayBackgrounds, highlight, highlight2 } from './terminal-output';
 
 export const displayCube = (cube, highlightCells, hideHints) => {
@@ -312,7 +312,7 @@ const colorize = (lines, data, useColor, highlightCells) => lines.map((line, row
 			const h = highlightCell
 				? highlightCell.highlight === 1 ? highlight : highlight2
 				: 'Q';
-			s += color.replace('Q', h).replace('Q', col);
+			s += color.replace('Q', h).replace('Q', getCell(col));
 		} else
 			s += ch;
 		++column;
@@ -325,8 +325,14 @@ const colorizeWithDigits = (lines, data, useColor) => lines.map(line => {
 		for (let digit = 1; digit <= 9; ++digit) {
 			const col = data[ch][digit - 1];
 			const color = (useColor && colors[col]) || 'Q';
-			line = line.replace(new RegExp(ch + digit, 'g'), color.replace('Q', col));
+			line = line.replace(new RegExp(ch + digit, 'g'), color.replace('Q', getCell(col)));
 		}
 	}
 	return line;
 });
+
+const getCell = label => {
+	if (STATE.cellLabels || label === ' ')
+		return label;
+	return STATE.mode === MODE.BROWSE ? '█' : '▌';
+};

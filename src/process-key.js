@@ -44,6 +44,7 @@ export const processKey = (keyName, shift) => {
 			console.log('F4 - perform moves');
 			console.log('F6 - optimize algorithm');
 			console.log('F7 - show diff');
+			console.log('F8 - show/hide cell labels');
 			console.log('backspace - undo last move');
 			console.log('arrow keys - rotate');
 			console.log('= - reset');
@@ -131,6 +132,12 @@ export const processKey = (keyName, shift) => {
 					break;
 			}
 			STATE.needsClearScreen = true;
+			break;
+
+		case 'f8':
+			STATE.cellLabels = !STATE.cellLabels;
+			clear();
+			displayCube(STATE.c);
 			break;
 
 		case '=':
