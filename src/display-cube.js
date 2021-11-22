@@ -1,6 +1,6 @@
 import { rotateFace } from './rotate-face';
 import { STATE } from './state';
-import { colors, highlight, highlight2 } from './terminal-output';
+import { colors, grayBackgrounds, highlight, highlight2 } from './terminal-output';
 
 export const displayCube = (cube, highlightCells, hideHints) => {
 
@@ -28,11 +28,12 @@ export const displayCube = (cube, highlightCells, hideHints) => {
 		return res;
 	};
 
-	const smallScreen = process.stdout.columns < 180;
+	const smallScreen = process.stdout.columns < 203;
 	/* widths:
 		getCube      - 18
 		getLeft...   - 13 * 6
 		getExtraCube - 19
+		getExtraCube2- 23
 		get3dCube    - 24
 		spacer       -  5
 	*/
@@ -43,9 +44,10 @@ export const displayCube = (cube, highlightCells, hideHints) => {
 		smallScreen ? null : getFront(),
 		smallScreen ? null : getRight(),
 		smallScreen ? null : getBack(),
-		smallScreen ? null : getUp(),
+		getUp(),
 		smallScreen ? null : getDown(),
 		getExtraCube(cube, useColor),
+		getExtraCube2(cube, useColor),
 		get3dCube(cube, useColor),
 	);
 
@@ -159,6 +161,64 @@ const getExtraCube = (cube, useColor) => {
 			cube.B[2][2], cube.B[2][1], cube.B[2][0],
 		],
 	};
+	return colorize(lines, data, useColor);
+};
+
+const getExtraCube2 = (cube, useColor) => {
+	const lines = [
+		' Extra Cube:           ',
+		'                       ',
+		'                       ',
+		'      X X X            ',
+		'     XU U UX           ',
+		'     XU U UX           ',
+		' X X  U U U  X  X  X X ',
+		'XL L LF F FR R R│B B BX',
+		'XL L LF F FR R R│B B BX',
+		'XL L LF F FR R R│B B BX',
+		' X X  D D D  X  X  X X ',
+		'     XD D DX           ',
+		'     XD D DX           ',
+		'      X X X            ',
+		'                       ',
+		'                       ',
+		'                       ',
+	];
+	const data = {
+		U: toLine(cube.U),
+		D: toLine(cube.D),
+		L: toLine(cube.L),
+		R: toLine(cube.R),
+		F: toLine(cube.F),
+		B: toLine(cube.B),
+		X: [
+			cube.B[0][2], cube.B[0][1], cube.B[0][0],
+			cube.L[0][0], cube.R[0][2],
+			cube.L[0][1], cube.R[0][1],
+			cube.U[0][0], cube.U[1][0], cube.U[1][2], cube.U[0][2], cube.U[0][1], cube.U[0][0],
+			cube.B[0][2], cube.L[0][0],
+			cube.B[1][2], cube.L[1][0],
+			cube.B[2][2], cube.L[2][0],
+			cube.D[2][0], cube.D[1][0], cube.D[1][2], cube.D[2][2], cube.D[2][1], cube.D[2][0],
+			cube.L[2][1], cube.R[2][1],
+			cube.L[2][0], cube.R[2][2],
+			cube.B[2][2], cube.B[2][1], cube.B[2][0],
+		],
+	};
+
+	// y0-, x0-, bkg_index(1-2)
+	const backgrounds = [ [4,6,1], [7,1,1], [7,6,2], [7,11,1], [7,17,2], [10,6,1] ]
+		// sort by Y axis ascending, X axis descending
+		.sort((a, b) => a[0] === b[0] ? b[1] - a[1] : a[0] - b[0])
+		.forEach(bkg => {
+			const x = bkg[1];
+			for (let y = bkg[0]; y < bkg[0] + 3; ++y) {
+				lines[y] = lines[y].substring(0, x) + grayBackgrounds[bkg[2]] +
+					lines[y].substring(x, x + 5) + grayBackgrounds[0] +
+					lines[y].substring(x + 5);
+			}
+		});
+
 	return colorize(lines, data, useColor);
 };
 
