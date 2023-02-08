@@ -103,7 +103,7 @@ export const processKey = (keyName, shift) => {
 			break;
 
 		case 'f4':
-			question('Type movements (UDLRFB udlrfb MES xyz): ', answer => {
+			question('Type movements (UDLRFB udlrfb MES xyz) or saved recording # or reverse saved (e.g. 1\'): ', answer => {
 				act(STATE.c, 'summary', answer);
 				STATE.history.push(cloneCube(STATE.c));
 				STATE.needsClearScreen = true;

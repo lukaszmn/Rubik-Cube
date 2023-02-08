@@ -1,7 +1,7 @@
 {
   "savedRecordings": [
     {
-      "key": "1",
+      "key": "4",
       "movements": "RUR'URUUR'"
     },
     {
@@ -15,6 +15,14 @@
     {
       "key": "9",
       "movements": "FFU' LR' FF L'R U'FF"
+    },
+    {
+      "key": "1",
+      "movements": "RUR'U'yL'U'LU"
+    },
+    {
+      "key": "2",
+      "movements": "L'U'LUy'RUR'U'"
     }
   ]
 }
