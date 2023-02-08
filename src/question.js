@@ -13,7 +13,7 @@ export const question = (prompt, callback) => {
 		rl = readline.createInterface({
 			input: process.stdin,
 			output: process.stdout,
-			terminal: false,
+			terminal: true,
 		});
 		created = true;
 	} else {
@@ -30,6 +30,9 @@ export const question = (prompt, callback) => {
 		if (process.stdin.isTTY)
 			process.stdin.setRawMode(true);
 		STATE.typingMode = false;
+
+		// show hex codes
+		// console.log('[[[' + Array.from(answer).map(c => c.charCodeAt(0) < 128 ? c.charCodeAt(0).toString(16) : encodeURIComponent(c).replace(/\%/g,'').toLowerCase()).join(' ') + ']]]');
 
 		callback(answer);
 	});
