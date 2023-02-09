@@ -1,10 +1,10 @@
 import * as CubeTypes from '../../cube-utils/identifier-cube';
+import * as ValidateTypes from '../../cube-utils/validate';
 import { DIFF_MODE, MODE, STATE } from '../../data/state';
 import * as HighlightTypes from '../../editing/cell-highlight';
 import { displayCube } from './display-cube';
 import { question } from './question';
 import { clear, colors, highlight, logAndClearLine } from './terminal-output';
-
 /**
  * @param {string} msg
  */
@@ -105,19 +105,42 @@ export const editor_showHints = () => {
 	console.log();
 };
 
+/**
+ * @param {ValidateTypes.ValidateRes} res
+ */
 export const editor_showValidation = res => {
 	let s = '  Counts: ';
+
 	s += Array.from('RGBOWY-')
 		.map(col => {
 			const formatColor = colors[col] || 'Q';
 			const formattedColorName = formatColor.replace('Q', col);
 
-			const optionalHighlight = res.counts[col] === 9 ? 'Q' : highlight;
-			const formattedCount = optionalHighlight.replace('Q', res.counts[col]);
+			const count = res.colorsSum.counts[col];
+			let formattedCount = count;
+			if (col !== '-') {
+				const optionalHighlight = count === 9 ? 'Q' : highlight;
+				formattedCount = optionalHighlight.replace('Q', count);
+			}
 
 			return formattedColorName + ' ' + formattedCount;
 		}).join(',  ');
-	s += res.valid ? '' : ' - INVALID';
+
+	if (res.colorsSum.valid) {
+		if (res.permutations.info.corners !== 0)
+			s += ` | ${res.permutations.info.corners} corners illegally rotated`;
+		if (res.permutations.info.edges !== 0)
+			s += ' | edges illegally swapped';
+		if (res.permutations.info.corners === 0 && res.permutations.info.edges === 0 && !res.permutations.info.parity)
+			s += ' | Too many corners or edges permutated';
+		if (res.permutations.info.illegalColors)
+			s += ` | Piece contains invalid colors: ${res.permutations.info.illegalColors}`;
+	}
+
+	s += ' - ';
+	s += (res.colorsSum.valid && res.permutations.valid)
+		? colors.G.replace('Q', 'OK')
+		: colors.R.replace('Q', 'INVALID');
 	logAndClearLine(s);
 };
 
