@@ -1,20 +1,41 @@
+import * as CubeTypes from '../../cube-utils/identifier-cube';
 import { DIFF_MODE, MODE, STATE } from '../../data/state';
+import * as HighlightTypes from '../../editing/cell-highlight';
 import { displayCube } from './display-cube';
 import { question } from './question';
 import { clear, colors, highlight, logAndClearLine } from './terminal-output';
 
+/**
+ * @param {string} msg
+ */
 export const alertInfo = msg => {
 	console.log(msg);
 };
 
+/**
+ * @param {string} msg
+ */
 export const alertError = msg => {
 	console.log(`ERROR: ${msg}`);
 };
 
+/**
+ * @callback questionCallback
+ * @param {string} answer
+ */
+/**
+ * @param {string} prompt
+ * @param {questionCallback} callback
+ */
 export const askQuestion = (prompt, callback) => {
 	question(prompt, callback);
 };
 
+/**
+ * @param {object} [options] Optional options
+ * @param {HighlightTypes.CellHighlight[]} [options.highlightCells]
+ * @param {CubeTypes.Cube} [options.animate]
+ */
 export const displayCurrentCube = options => {
 	if (!options)
 		displayCube(STATE.c);
@@ -24,17 +45,26 @@ export const displayCurrentCube = options => {
 		displayCube(options.animate, undefined, true);
 };
 
+/**
+ * @param {string} [title]
+ */
 export const redrawWithTitle = title => {
 	clear(title);
 };
 
 /* cube-diff */
 
+/**
+ * @param {CubeTypes.Cube} diff
+ */
 export const showPreviousCubeDiff = diff => {
 	console.log('\n\nPREVIOUS CUBE:');
 	displayCube(diff, undefined, true);
 };
 
+/**
+ * @param {CubeTypes.Cube} diff
+ */
 export const showCurrentCubeDiff = diff => {
 	console.log('\n\nCURRENT CUBE:');
 	displayCube(diff, undefined, true);
@@ -42,6 +72,9 @@ export const showCurrentCubeDiff = diff => {
 
 /* editor */
 
+/**
+ * @param {string} step
+ */
 export const editor_showMovement = step => {
 	if (step)
 		console.log(`Movement: ${step}`);
@@ -111,7 +144,7 @@ export const main_showHelp = () => {
 
 	console.log('Saved recordings:');
 	for (const rec of STATE.savedRecordings)
-		console.log(`  ${rec.key}: ${rec.movements}`);
+		console.log(`  ${rec.key} (${rec.name}): ${rec.movements}`);
 };
 
 export const recording_started = () => {
@@ -129,6 +162,9 @@ export const recording_summary = () => {
 	}
 };
 
+/**
+ * @param {string} answer
+ */
 export const recording_answered = answer => {
 	console.log(`ANSWER ${answer}`);
 };
@@ -137,6 +173,9 @@ export const rotations_started = () => {
 	console.log('Now rotate the cube to see movements for the new orientation. Press F4 again to exit');
 };
 
+/**
+ * @param {string} steps
+ */
 export const rotations_formula = steps => {
 	console.log(`Rotated movement: ${steps}`);
 };

@@ -1,3 +1,9 @@
+import * as CubeTypes from './identifier-cube';
+
+/**
+ * @param {CubeTypes.Cube} cube
+ * @return {CubeTypes.Cube}
+ */
 export const cloneCube = cube => ({
 	U: cube.U.map(row => row.map(cell => cell)),
 	L: cube.L.map(row => row.map(cell => cell)),

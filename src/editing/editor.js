@@ -2,6 +2,7 @@ import * as fs from 'fs';
 
 import { cloneCube } from '../cube-utils/clone-cube';
 import { toCube, toOneLine } from '../cube-utils/cube-converters';
+import * as CubeTypes from '../cube-utils/identifier-cube';
 import { readCube } from '../cube-utils/read-cube';
 import { targetCube } from '../cube-utils/target-cube';
 import { validate } from '../cube-utils/validate';
@@ -9,42 +10,81 @@ import { MODE, STATE } from '../data/state';
 import { movements } from '../movements';
 import { alertInfo, displayCurrentCube, editor_showHints, editor_showValidation, redrawWithTitle } from '../UI/ui';
 import { editor_showMovement, solverInterface } from '../UI/ui';
+import * as HighlightTypes from './cell-highlight';
 import { convertCursorPositionFromFace, convertCursorPositionToFace } from './cursor-position';
+import * as PaintTypes from './paint-cube';
 import { getCellsInDirection, paintCube, REPEAT_KEY_DIRECTION } from './paint-cube';
 
 let cursorX = 4;
 let cursorY = 4;
 
+/**
+ * @typedef RepeatKey
+ * @property {CubeTypes.Cube} [originalCube]
+ * @property {string} [key]
+ * @property {number} [cx02]
+ * @property {number} [cy02]
+ * @property {PaintTypes.DirectionValue} [direction]
+ * @property {function} nextDirection
+ * @property {function} reset
+ */
+/**
+ * @type {RepeatKey}
+ */
 const repeatKey = {
 	originalCube: undefined,
 	key: undefined,
 	cx02: undefined,
 	cy02: undefined,
 	direction: undefined,
+
 	nextDirection: function() {
+		if (this.direction === undefined) throw new Error();
 		if (++this.direction > Object.getOwnPropertyNames(REPEAT_KEY_DIRECTION).length)
 			this.direction = 1;
 	},
+
 	reset: function() {
 		this.originalCube = this.key = this.cx02 = this.cy02 = this.direction = undefined;
 	},
 };
 
+/**
+ * @typedef AutoMovement
+ * @property {HighlightTypes.CellHighlight[]} highlightCells
+ * @property {string} [faceName]
+ * @property {number} [cx02]
+ * @property {number} [cy02]
+ * @property {PaintTypes.DirectionValue} [direction]
+ * @property {number} index
+ * @property {function} prevDirection
+ * @property {function} nextDirection
+ * @property {function} reset
+ * @property {function} proceed
+ */
+/**
+ * @type {AutoMovement}
+ */
 const autoMovement = {
-	highlightCells: undefined, // { highlight(1-2), face, x02, y02 }
+	highlightCells: [], // { highlight(1-2), face, x02, y02 }
 	faceName: undefined,
 	cx02: undefined, // 0-2
 	cy02: undefined, // 0-2
 	direction: undefined,
-	index: undefined,
+	index: 0,
+
 	prevDirection: function() {
+		if (this.direction === undefined) throw new Error();
 		if (--this.direction < 1)
 			this.direction = Object.getOwnPropertyNames(REPEAT_KEY_DIRECTION).length;
 	},
+
 	nextDirection: function() {
+		if (this.direction === undefined) throw new Error();
 		if (++this.direction > Object.getOwnPropertyNames(REPEAT_KEY_DIRECTION).length)
 			this.direction = 1;
 	},
+
 	reset: function() {
 		this.faceName = this.cx02 = this.cy02 = this.direction = undefined;
 		this.index = 0;
@@ -59,6 +99,7 @@ const autoMovement = {
 		// if (res1.cursorX_1_12 !== cursorX || res1.cursorY_1_9 !== cursorY)
 		// 	console.log({ok: res1.cursorX_1_12 === cursorX && res1.cursorY_1_9 === cursorY, cursorX, cursorY, res1});
 	},
+
 	proceed: function() {
 		if (this.highlightCells.length <= 1)
 			return;
@@ -75,6 +116,11 @@ const autoMovement = {
 	},
 };
 
+/**
+ * @param {string | undefined} keyName
+ * @param {boolean} shift
+ * @param {boolean} ctrl
+ */
 export const processKeyInEdit = (keyName, shift, ctrl) => {
 	let movKey = undefined;
 	let needsLaterClearScreen = false;
@@ -244,6 +290,7 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 
 				case MODE.OPTIMIZE_TARGET:
 					STATE.mode = MODE.OPTIMIZE_CUSTOM;
+					if (!STATE.optimize) throw new Error();
 					STATE.optimize.target = cloneCube(STATE.c);
 					solverInterface();
 					break;
@@ -282,6 +329,7 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 	const res = validate(STATE.c);
 	editor_showValidation(res);
 
+	// TODO: this is from the call processKeyInEdit(undefined, false, false);
 	const mov = movements[movKey];
 	if (mov) {
 		editor_showMovement(movKey.replace('_', "'"));
@@ -295,6 +343,12 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 		STATE.needsClearScreen = true;
 };
 
+/**
+ * @param {number} cursorX
+ * @param {number} cursorY
+ * @param {Direction} direction
+ * @return {number[]} [ x, y ]
+ */
 const getValidCursorPosition = (cursorX, cursorY, direction) => {
 	const horizontal = direction === 'left' || direction === 'right';
 	const vertical = !horizontal;
@@ -315,3 +369,8 @@ const getValidCursorPosition = (cursorX, cursorY, direction) => {
 
 	return [ cursorX, cursorY ];
 };
+
+/**
+ * @typedef Direction
+ * @type { 'left' | 'right' | 'up' | 'down' }
+ */

@@ -3,8 +3,17 @@ import { STATE } from '../../data/state';
 // https://github.com/dariuszp/colog/blob/master/src/colog.js
 // https://en.wikipedia.org/wiki/ANSI_escape_code#CSI_(Control_Sequence_Introducer)_sequences
 
+/**
+ * @param {number | string} s
+ * @return {string}
+ */
 const CODE = s => `\x1B[${s}`;
+/**
+ * @param {number | string} s
+ * @return {string}
+ */
 const FONTCODE = s => CODE(s) + 'm';
+
 const FONT = {
 	DEFAULT: FONTCODE(0),
 	UNDERLINE: FONTCODE(4),
@@ -45,6 +54,7 @@ export const clearScreen = () => {
 	STATE.needsClearScreen = false;
 };
 
+/** @param {string} s */
 export const logAndClearLine = s => {
 	const width = process.stdout.columns - 1;
 	const spaces = ' '.repeat(width);
@@ -52,6 +62,7 @@ export const logAndClearLine = s => {
 	console.log(s);
 };
 
+/** @param {string} [msg] */
 export const clear = msg => {
 	if (STATE.needsClearScreen)
 		clearScreen();

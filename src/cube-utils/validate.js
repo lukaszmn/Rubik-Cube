@@ -1,3 +1,9 @@
+import * as CubeTypes from './identifier-cube';
+
+/**
+ * @param {CubeTypes.Cube} cube
+ * @return {ValidateRes}
+ */
 export const validate = cube => {
 	const counts = {
 		'W': 0,
@@ -22,3 +28,19 @@ export const validate = cube => {
 	}
 	return { valid: true, counts };
 };
+
+/**
+ * @typedef ValidateRes
+ * @property {boolean} valid
+ * @property {ValidateCounts} counts
+ */
+/**
+ * @typedef ValidateCounts
+ * @property {number} W
+ * @property {number} R
+ * @property {number} G
+ * @property {number} B
+ * @property {number} O
+ * @property {number} Y
+ * //@property {number} "-"
+ */

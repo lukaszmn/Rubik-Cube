@@ -17,6 +17,10 @@ import { alertInfo, askQuestion, diffs_showMode, displayCurrentCube, main_showHe
 
 let wasPrime = false;
 
+/**
+ * @param {string} keyName
+ * @param {boolean} shift
+ */
 export const processKey = (keyName, shift) => {
 	let movKey = keyName + (wasPrime ? '_' : '');
 
@@ -30,7 +34,7 @@ export const processKey = (keyName, shift) => {
 		case 'backspace':
 			if (STATE.history.length > 1) {
 				redrawWithTitle('Undo');
-				const previousCube = STATE.history.pop();
+				const previousCube = STATE.history.pop() || new Error();
 				STATE.c = cloneCube(STATE.history[STATE.history.length - 1]);
 				displayCurrentCube();
 
@@ -63,11 +67,12 @@ export const processKey = (keyName, shift) => {
 					askQuestion('Which key to save movements under? (0-9 or empty to cancel): ', answer => {
 						recording_answered(answer);
 						if (answer >= '0' && answer <= '9') {
-							// TODO: ask for name
-							STATE.savedRecordings = STATE.savedRecordings.filter(x => x.key !== answer);
-							STATE.savedRecordings.push({ key: answer, movements: STATE.recording });
-							saveState();
-							alertInfo('Saved');
+							askQuestion('Enter name: ', answerName => {
+								STATE.savedRecordings = STATE.savedRecordings.filter(x => x.key !== answer);
+								STATE.savedRecordings.push({ key: answer, name: answerName, movements: STATE.recording });
+								saveState();
+								alertInfo('Saved');
+							});
 						} else {
 							alertInfo('Canceled');
 						}

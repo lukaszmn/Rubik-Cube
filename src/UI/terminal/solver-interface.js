@@ -1,9 +1,11 @@
 import { MODE, STATE } from '../../data/state';
+import * as SolverTypes from '../../feats/solver';
 import { solve } from '../../feats/solver';
 import { displayCube } from './display-cube';
 import { questionAsync } from './question';
 
 export const solverInterface = async () => {
+	if (!STATE.optimize) throw new Error('Optmize is not set');
 	console.log('Now enter possible movements, one per line.');
 
 	/* eslint quotes: "off" */
@@ -49,14 +51,17 @@ export const solverInterface = async () => {
 };
 
 const showMaxStepsInterface = async () => {
+	if (!STATE.optimize) throw new Error('Optmize is not set');
 	console.log();
 	const maxSteps = await questionAsync('How many repetitions should be performed at most? ');
 	STATE.optimize.maxSteps = maxSteps;
 };
 
 const showAndSolve = () => {
+	if (!STATE.optimize) throw new Error('Optmize is not set');
 	showSummary();
 
+	/** @type {SolverTypes.Loggers} */
 	const loggers = {
 		step: (step, solutionsCount, queueSize) => console.log(
 			`Permutations for step ${step} out of ${STATE.optimize.maxSteps} ` +
@@ -77,6 +82,7 @@ const showAndSolve = () => {
 };
 
 const showSummary = () => {
+	if (!STATE.optimize) throw new Error('Optmize is not set');
 	console.log();
 	console.log('Summary:');
 	console.log('Initial cube:');

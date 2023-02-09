@@ -1,8 +1,20 @@
 import { createSide } from './cube-utils/create-side';
+import * as CubeTypes from './cube-utils/identifier-cube';
 import { rotateFace } from './cube-utils/rotate-face';
 
+/**
+ * @param {CubeTypes.Face | null} faceToRotate
+ * @param {Edge} edge1
+ * @param {Edge} edge2
+ * @param {Edge} edge3
+ * @param {Edge} edge4
+ */
 const transformCube = (faceToRotate, edge1, edge2, edge3, edge4) => {
 
+	/**
+	 * @param {Edge} src
+	 * @param {Edge} dest
+	 */
 	const copyEdge = (src, dest) => {
 		for (let i = 0; i < src.edge.length; ++i) {
 			const destRow = dest.edge[i][0];
@@ -12,6 +24,11 @@ const transformCube = (faceToRotate, edge1, edge2, edge3, edge4) => {
 			dest.face[destRow][destCol] = src.face[srcRow][srcCol];
 		}
 	};
+
+	/**
+	 * @param {CubeTypes.Face} src
+	 * @param {CubeTypes.Face} dest
+	 */
 	const copy2DArray = (src, dest) => {
 		for (let rowIndex = 0; rowIndex < dest.length; ++rowIndex) {
 			const row = dest[rowIndex];
@@ -37,21 +54,43 @@ const transformCube = (faceToRotate, edge1, edge2, edge3, edge4) => {
 	copyEdge(tmp, edge2);
 };
 
+/** @typedef {{ face: CubeTypes.Face, edge: string[] }} Edge */
+
+/**
+ * @param {CubeTypes.Face} face
+ * @param {number} col
+ * @return {Edge}
+ */
 const columnDown = (face, col) => ({
 	face,
 	edge: Array.from('012').map(row => `${row}${col}`),
 });
 
+/**
+ * @param {CubeTypes.Face} face
+ * @param {number} col
+ * @return {Edge}
+ */
 const columnUp = (face, col) => ({
 	face,
 	edge: Array.from('210').map(row => `${row}${col}`),
 });
 
+/**
+ * @param {CubeTypes.Face} face
+ * @param {number} row
+ * @return {Edge}
+ */
 const rowLeft = (face, row) => ({
 	face,
 	edge: Array.from('210').map(col => `${row}${col}`),
 });
 
+/**
+ * @param {CubeTypes.Face} face
+ * @param {number} row
+ * @return {Edge}
+ */
 const rowRight = (face, row) => ({
 	face,
 	edge: Array.from('012').map(col => `${row}${col}`),
@@ -77,12 +116,12 @@ export const movements = {
 	..._movements,
 
 	// these undefined will be created in next statement
-	M_: undefined,
-	E_: undefined,
-	S_: undefined,
-	L_: undefined,
-	D_: undefined,
-	B_: undefined,
+	M_: cube => {},
+	E_: cube => {},
+	S_: cube => {},
+	L_: cube => {},
+	D_: cube => {},
+	B_: cube => {},
 
 	u: cube => { _movements.U(cube); movements.E_(cube); },
 	d: cube => { _movements.D(cube); movements.E(cube); },

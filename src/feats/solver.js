@@ -1,6 +1,8 @@
 import { act } from '../act';
 import { toCube, toOneLine } from '../cube-utils/cube-converters';
+import * as CubeTypes from '../cube-utils/identifier-cube';
 import { getIdentifierCube } from '../cube-utils/identifier-cube';
+import * as StateTypes from '../data/state';
 
 /* example:
 const options = [
@@ -12,11 +14,32 @@ const options = [
 loggers: { step: (step, solutionsCount, queueSize)=>{}, progress: percent=>{}, stepSolutions: newSolutionsCount=>{} }
 */
 
+/** @type {NodeJS.HRTime[]} */
 export const timers = [];
-const _start = index => { timers[index] = timers[index] || 0; timers['t-_' + index] = process.hrtime(); };
-const _end = index => { timers[index] += process.hrtime(timers['t-_' + index])[1] / 1000000.0; delete timers['t-_' + index]; };
 
+/** @param {string} index */
+const _start = index => {
+	timers[index] = timers[index] || 0;
+	timers['t-_' + index] = process.hrtime();
+};
+
+/** @param {string} index */
+const _end = index => {
+	timers[index] += process.hrtime(timers['t-_' + index])[1] / 1000000.0;
+	delete timers['t-_' + index];
+};
+
+
+/**
+ * @param {CubeTypes.Cube} startCube
+ * @param {CubeTypes.Cube} targetCube
+ * @param {StateTypes.OptimizeOption[]} options
+ * @param {number} maxSteps
+ * @param {Loggers} loggers
+ * @return {SolverSolution[]}
+ */
 export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
+	/** @type {SolverStep[]} */
 	let steps = [{
 		path: '',
 		cubeArr: Array.from(toOneLine(startCube)),
@@ -31,16 +54,19 @@ export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 	const movementsCache = cacheMovements(options);
 	_end('0 cacheMovements');
 
+	/** @type {SolverSolution[]} */
 	const solutions = [];
 	const targetInOneLineRegex = new RegExp('^' + toOneLine(targetCube).replace(/-/g, '.') + '$');
 	// const targetInOneLine = toOneLine(targetCube);
 
-	let step = 0;
-	while (++step <= maxSteps) {
+	let stepNumber = 0;
+	while (++stepNumber <= maxSteps) {
 		_start('1 loggers.step');
 		if (loggers.step)
-			loggers.step(step, solutions.length, steps.length);
+			loggers.step(stepNumber, solutions.length, steps.length);
 		_end('1 loggers.step');
+
+		/** @type {SolverStep[]} */
 		const newSteps = [];
 
 		let newSolutionsCounter = 0;
@@ -78,9 +104,10 @@ export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 				const newPath = step.path + optionIndex;
 				_end('4 newCubeArr.join');
 
-				_start('5 if step<maxSteps');
-				if (step !== maxSteps) {
+				_start('5 if stepNumber<maxSteps');
+				if (stepNumber !== maxSteps) {
 					_start('31 create newStep');
+					/** @type {SolverStep} */
 					const newStep = {
 						path: newPath,
 						cubeArr: newCubeArr,
@@ -94,7 +121,7 @@ export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 					_end('32 exists newCubeStr');
 					// if (newStep.previousCubes.includes(newCube))
 					if (res) {
-						_end('5 if step<maxSteps');
+						_end('5 if stepNumber<maxSteps');
 						continue;
 					}
 
@@ -131,8 +158,11 @@ export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 				}
 			}
 
+			// @ts-ignore
 			step.path = undefined;
+			// @ts-ignore
 			step.cubeArr = undefined;
+			// @ts-ignore
 			step.cubeStr = undefined;
 			// step.previousCubes = undefined;
 
@@ -151,7 +181,7 @@ export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 		_end('9 loggers.stepSolutions');
 
 		_start('10 steps=newSteps.filter');
-		if (step < maxSteps) {
+		if (stepNumber < maxSteps) {
 			steps = newSteps.filter(step => {
 				const indicesPath = Array.from(step.path);
 				const length = indicesPath
@@ -223,3 +253,39 @@ const cacheTransform = (movementsCache, cubeOneLineArray, movementName) => {
 // console.log(cacheTransform(before, 'R'));
 
 // process.exit();
+
+/**
+ * @typedef SolverStep
+ * @property {string} path
+ * @property {string[]} cubeArr
+ * @property {string} cubeStr
+ */
+
+/**
+ * @typedef SolverSolution
+ * @property {string} path
+ * @property {number} length
+ * @property {CubeTypes.Cube} cube
+ */
+
+/**
+ * @typedef Loggers
+ * @property {LoggersStepCallback} step
+ * @property {LoggersProgressCallback} progress
+ * @property {LoggersStepSolutionsCallback} stepSolutions
+ */
+/**
+ * @callback LoggersStepCallback
+ * @param {number} step
+ * @param {number} solutionsCount
+ * @param {number} queueSize
+ */
+/**
+ * @callback LoggersProgressCallback
+ * @param {number} percent
+ * @param {number} newSolutionsCount
+ */
+/**
+ * @callback LoggersStepSolutionsCallback
+ * @param {number} newSolutionsCount
+ */

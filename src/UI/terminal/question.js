@@ -5,6 +5,14 @@ import { STATE } from '../../data/state';
 let rl;
 let created = false;
 
+/**
+ * @callback questionCallback
+ * @param {string} answer
+ */
+/**
+ * @param {string} prompt
+ * @param {questionCallback} callback
+ */
 export const question = (prompt, callback) => {
 	if (process.stdin.isTTY)
 		process.stdin.setRawMode(false);
@@ -40,4 +48,8 @@ export const question = (prompt, callback) => {
 
 };
 
+/**
+ * @param {string} prompt
+ * @return {Promise}
+ */
 export const questionAsync = prompt => new Promise(resolve => question(prompt, res => resolve(res)));

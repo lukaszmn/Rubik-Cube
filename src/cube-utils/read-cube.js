@@ -1,5 +1,10 @@
 import { createSide } from './create-side';
+import * as CubeTypes from './identifier-cube';
 
+/**
+ * @param {string[]} arr - see target-cube for details
+ * @return {CubeTypes.Cube}
+ */
 export const readCube = arr => {
 	const cube = {
 		U: createSide(),

@@ -1,14 +1,36 @@
+import * as CubeTypes from '../../cube-utils/identifier-cube';
 import { rotateFace } from '../../cube-utils/rotate-face';
 import { MODE, STATE } from '../../data/state';
+import * as HighlightTypes from '../../editing/cell-highlight';
 import { colors, grayBackgrounds, highlight, highlight2 } from './terminal-output';
 
+/**
+ * @param {CubeTypes.Cube} cube
+ * @param {HighlightTypes.CellHighlight[]} [highlightCells] Optional options
+ * @param {boolean} [hideHints]
+ */
 export const displayCube = (cube, highlightCells, hideHints) => {
 
 	const useColor = STATE.showColors;
 
+	/**
+	 * @param {CubeTypes.Face} face
+	 * @return {CubeTypes.Face}
+	 */
 	const rotR = face => rotateFace(face);
+
+	/**
+	 * @param {CubeTypes.Face} face
+	 * @return {CubeTypes.Face}
+	 */
 	const rotL = face => rotR(rotR(rotR(face)));
+
+	/**
+	 * @param {CubeTypes.Face} face
+	 * @return {CubeTypes.Face}
+	 */
 	const rotB = face => rotR(rotR(face));
+
 	const getLeft = () => getSection('Left', rotL(cube.U), cube.B, cube.L, cube.F, rotR(cube.D), useColor);
 	const getFront = () => getSection('Front', cube.U, cube.L, cube.F, cube.R, cube.D, useColor);
 	const getRight = () => getSection('Right', rotR(cube.U), cube.F, cube.R, cube.B, rotL(cube.D), useColor);
@@ -67,8 +89,18 @@ export const displayCube = (cube, highlightCells, hideHints) => {
 	console.log();
 };
 
+/**
+ * @param {Array<Array<string>>} arr
+ * @return {string[]}
+ */
 const toLine = arr => arr.reduce((prev, curr) => [...prev, ...curr], []);
 
+/**
+ * @param {CubeTypes.Cube} cube
+ * @param {boolean} useColor
+ * @param {HighlightTypes.CellHighlight[] | undefined} highlightCells Optional options
+ * @return {string[]}
+ */
 const getCube = (cube, useColor, highlightCells) => {
 	const lines = [
 		' Cube:            ',
@@ -106,10 +138,13 @@ const getCube = (cube, useColor, highlightCells) => {
 		B: [14, 7],
 		D: [6, 11],
 	};
+
+	/** @type {CellHighlightHere[] | undefined} */
+	let highlightCells2 = undefined;
 	if (highlightCells) {
 		// convert {face, x02, y02, higlight(1-2)} to {abs_x(0-), abs_y(0-), highlight(1-2)}
 		// console.log('before', highlightCells);
-		highlightCells = highlightCells.map(cell => ({
+		highlightCells2 = highlightCells.map(cell => ({
 			highlight: cell.highlight,
 			x: START[cell.face][0] + cell.x02,
 			y: START[cell.face][1] + cell.y02,
@@ -117,9 +152,14 @@ const getCube = (cube, useColor, highlightCells) => {
 		// console.log('after', highlightCells);
 	}
 
-	return colorize(lines, data, useColor, highlightCells);
+	return colorize(lines, data, useColor, highlightCells2);
 };
 
+/**
+ * @param {CubeTypes.Cube} cube
+ * @param {boolean} useColor
+ * @return {string[]}
+ */
 const getExtraCube = (cube, useColor) => {
 	const lines = [
 		' Extra Cube:       ',
@@ -164,6 +204,11 @@ const getExtraCube = (cube, useColor) => {
 	return colorize(lines, data, useColor);
 };
 
+/**
+ * @param {CubeTypes.Cube} cube
+ * @param {boolean} useColor
+ * @return {string[]}
+ */
 const getExtraCube2 = (cube, useColor) => {
 	const lines = [
 		' Extra Cube:           ',
@@ -207,7 +252,7 @@ const getExtraCube2 = (cube, useColor) => {
 	};
 
 	// y0-, x0-, bkg_index(1-2)
-	const backgrounds = [ [4,6,1], [7,1,1], [7,6,2], [7,11,1], [7,17,2], [10,6,1] ]
+	const backgrounds = [ [4, 6, 1], [7, 1, 1], [7, 6, 2], [7, 11, 1], [7, 17, 2], [10, 6, 1] ]
 		// sort by Y axis ascending, X axis descending
 		.sort((a, b) => a[0] === b[0] ? b[1] - a[1] : a[0] - b[0])
 		.forEach(bkg => {
@@ -222,6 +267,11 @@ const getExtraCube2 = (cube, useColor) => {
 	return colorize(lines, data, useColor);
 };
 
+/**
+ * @param {CubeTypes.Cube} cube
+ * @param {boolean} useColor
+ * @return {string[]}
+ */
 const get3dCube = (cube, useColor) => {
 	/*
 	*       +----+----+----+
@@ -271,6 +321,16 @@ const get3dCube = (cube, useColor) => {
 	return colorizeWithDigits(lines, data, useColor);
 };
 
+/**
+ * @param {string} title
+ * @param {CubeTypes.Face} face1
+ * @param {CubeTypes.Face} face2
+ * @param {CubeTypes.Face} face3
+ * @param {CubeTypes.Face} face4
+ * @param {CubeTypes.Face} face5
+ * @param {boolean} useColor
+ * @return {string[]}
+ */
 const getSection = (title, face1, face2, face3, face4, face5, useColor) => {
 	const lines = [
 		(title + ':').padEnd(13, ' '),
@@ -301,6 +361,13 @@ const getSection = (title, face1, face2, face3, face4, face5, useColor) => {
 	return colorize(lines, data, useColor);
 };
 
+/**
+ * @param {string[]} lines
+ * @param {Object.<string, string[]>} data
+ * @param {boolean} useColor
+ * @param {CellHighlightHere[] | undefined} [highlightCells]
+ * @return {string[]}
+ */
 const colorize = (lines, data, useColor, highlightCells) => lines.map((line, rowIndex) => {
 	let s = '';
 	let column = 0;
@@ -320,6 +387,12 @@ const colorize = (lines, data, useColor, highlightCells) => lines.map((line, row
 	return s;
 });
 
+/**
+ * @param {string[]} lines
+ * @param {Object.<string, string[]>} data
+ * @param {boolean} useColor
+ * @return {string[]}
+ */
 const colorizeWithDigits = (lines, data, useColor) => lines.map(line => {
 	for (const ch in data) {
 		for (let digit = 1; digit <= 9; ++digit) {
@@ -331,8 +404,19 @@ const colorizeWithDigits = (lines, data, useColor) => lines.map(line => {
 	return line;
 });
 
+/**
+ * @param {string} label
+ * @return {string}
+ */
 const getCell = label => {
 	if (STATE.cellLabels || label === ' ')
 		return label;
 	return STATE.mode === MODE.BROWSE ? '█' : '▌';
 };
+
+/**
+ * @typedef CellHighlightHere
+ * @property {number} highlight - 1 or 2
+ * @property {number} x
+ * @property {number} y
+ */

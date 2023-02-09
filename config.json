@@ -2,27 +2,33 @@
   "savedRecordings": [
     {
       "key": "4",
+      "name": "3 warstwa krzyż",
       "movements": "RUR'URUUR'"
     },
     {
       "key": "7",
+      "name": "3 warstwa cała",
       "movements": "RB' RFFR' BR FFRR"
     },
     {
       "key": "8",
+      "name": "3 warstwa środki w prawo",
       "movements": "FFU LR' FF L'R UFF"
     },
     {
       "key": "9",
+      "name": "3 warstwa środki w lewo",
       "movements": "FFU' LR' FF L'R U'FF"
     },
     {
       "key": "1",
-      "movements": "RUR'U'yL'U'LU"
+      "name": "2 warstwa z góry na prawo",
+      "movements": "U RUR'U' y L'U'LU"
     },
     {
       "key": "2",
-      "movements": "L'U'LUy'RUR'U'"
+      "name": "2 warstwa z góry na lewo",
+      "movements": "U' L'U'LU y' RUR'U'"
     }
   ]
 }

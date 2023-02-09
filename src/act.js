@@ -1,11 +1,16 @@
 import { printDiffs } from './cube-diff';
 import { cloneCube } from './cube-utils/clone-cube';
+import * as CubeTypes from './cube-utils/identifier-cube';
 import { DIFF_MODE, STATE } from './data/state';
 import { movements } from './movements';
 import { expandMovements } from './movements-utils';
 import { alertError, displayCurrentCube, redrawWithTitle } from './ui/ui';
 
-/* showSteps = 'all' | 'summary' | 'none' */
+/**
+ * @param {CubeTypes.Cube} cube
+ * @param {'all' | 'summary' | 'none'} showSteps
+ * @param {string} steps
+ */
 export const act = (cube, showSteps, steps) => {
 	const showPreviousCube = STATE.showDiff !== DIFF_MODE.NONE && showSteps !== 'none';
 

@@ -1,8 +1,21 @@
 import { STATE } from './data/state';
 
+/**
+ * @param {string} steps
+ * @return {string}
+ */
 export const movUserToKey = steps => steps.replace(/'/, '_');
+
+/**
+ * @param {string} steps
+ * @return {string}
+ */
 export const movKeyToUser = steps => steps.replace(/_/, "'");
 
+/**
+ * @param {string} steps
+ * @return {string}
+ */
 export const reverseMovements = steps => {
 	let res = '';
 	for (let i = steps.length - 1; i >= 0; --i) {
@@ -15,6 +28,10 @@ export const reverseMovements = steps => {
 	return res;
 };
 
+/**
+ * @param {string} steps
+ * @return {string}
+ */
 export const expandMovements = steps => {
 	let res = '';
 

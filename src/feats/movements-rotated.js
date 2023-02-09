@@ -4,6 +4,11 @@ import { getIdentifierCube } from '../cube-utils/identifier-cube';
 import { movements } from '../movements';
 import { expandMovements, movKeyToUser, reverseMovements } from '../movements-utils';
 
+/**
+ * @param {string} rotations
+ * @param {string} step - single character
+ * @return {string | undefined}
+ */
 export const getMovementForRotations = (rotations, step) => {
 	if (step.length !== 1)
 		throw new Error('Pass only 1 movement');
@@ -26,6 +31,11 @@ export const getMovementForRotations = (rotations, step) => {
 	return undefined;
 };
 
+/**
+ * @param {string} rotations
+ * @param {string} steps
+ * @return {string}
+ */
 export const getMovementsForRotations = (rotations, steps) => {
 	const stepsExpanded = expandMovements(steps);
 	const movArr = Array.from(stepsExpanded);

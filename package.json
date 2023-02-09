@@ -21,8 +21,10 @@
   },
   "homepage": "https://github.com/lukaszmn/Rubik-Cube#readme",
   "devDependencies": {
+    "@types/node": "^18.13.0",
     "eslint": "^8.2.0",
     "eslint-config-google": "^0.14.0",
+    "eslint-plugin-jsdoc": "^39.8.0",
     "eslint-plugin-simple-import-sort": "^10.0.0"
   }
 }
