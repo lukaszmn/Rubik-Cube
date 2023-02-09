@@ -1,18 +1,16 @@
-import { displayCube } from './display-cube';
 import { DIFF_MODE, STATE } from './state';
+import { showCurrentCubeDiff, showPreviousCubeDiff } from './UI/ui';
 
 export const printDiffs = (previousCube, currentCube) => {
 	if (STATE.showDiff === DIFF_MODE.NONE)
 		return;
 
-	console.log('\n\nPREVIOUS CUBE:');
-	displayCube(getCubeDiff(previousCube, currentCube), undefined, true);
+	showPreviousCubeDiff(getCubeDiff(previousCube, currentCube));
 
 	if (STATE.showDiff === DIFF_MODE.PREVIOUS)
 		return;
 
-	console.log('\n\nCURRENT CUBE:');
-	displayCube(getCubeDiff(currentCube, previousCube), undefined, true);
+	showCurrentCubeDiff(getCubeDiff(currentCube, previousCube));
 };
 
 const getCubeDiff = (previousCube, currentCube) => ({

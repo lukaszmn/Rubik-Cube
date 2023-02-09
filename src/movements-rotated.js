@@ -1,6 +1,6 @@
 import { act } from './act';
-import { toOneLine } from './cube-converters';
-import { getIdentifierCube } from './identifier-cube';
+import { toOneLine } from './cube-utils/cube-converters';
+import { getIdentifierCube } from './cube-utils/identifier-cube';
 import { movements } from './movements';
 import { expandMovements, movKeyToUser, reverseMovements } from './movements-utils';
 
@@ -12,7 +12,7 @@ export const getMovementForRotations = (rotations, step) => {
 	act(expected, 'none', step);
 	const expectedS = toOneLine(expected);
 
-	const rotationsReverse =  reverseMovements(rotations);
+	const rotationsReverse = reverseMovements(rotations);
 
 	for (const name of Object.getOwnPropertyNames(movements)) {
 		const actual = getIdentifierCube();

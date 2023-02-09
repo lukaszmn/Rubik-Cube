@@ -2,7 +2,7 @@ import { getMovementForRotations } from '../src/movements-rotated';
 
 /* eslint camelcase: "off" */
 
-const rotations = ["y"];
+const rotations = ['y'];
 const keys = Array.from('UDLRFBMES');
 
 let res = '';

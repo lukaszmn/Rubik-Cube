@@ -1,12 +1,12 @@
 import { emitKeypressEvents } from 'readline';
-import { displayCube } from './src/display-cube';
+
+import { targetCube } from './src/cube-utils/target-cube';
 import { processKeyInEdit } from './src/editor';
 import { loadState } from './src/persistence';
 import { processKey } from './src/process-key';
 import { readCube } from './src/read-cube';
-import { STATE, initState, MODE } from './src/state';
-import { targetCube } from './src/target-cube';
-import { clear } from './src/terminal-output';
+import { initState, MODE, STATE } from './src/state';
+import { displayCurrentCube, redrawWithTitle } from './src/UI/ui';
 
 
 const cube = readCube(targetCube);
@@ -16,8 +16,8 @@ const cube = readCube(targetCube);
 initState(cube);
 loadState();
 
-clear();
-displayCube(cube);
+redrawWithTitle();
+displayCurrentCube();
 
 emitKeypressEvents(process.stdin);
 if (process.stdin.isTTY)

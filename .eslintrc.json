@@ -6,6 +6,9 @@
     "extends": [
         "google"
     ],
+    "plugins": [
+        "simple-import-sort"
+    ],
     "parserOptions": {
         "ecmaVersion": 13,
         "sourceType": "module"
@@ -29,6 +32,7 @@
         "comma-dangle": ["error", "only-multiline"],
         "new-cap": "off",
         "operator-linebreak": "off",
-        "camelcase": "off"
+        "camelcase": "off",
+        "simple-import-sort/imports": "error"
     }
 }

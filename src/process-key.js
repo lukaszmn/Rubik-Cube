@@ -1,20 +1,19 @@
 import { act } from './act';
-import { cloneCube } from './clone-cube';
-import { toOneLine } from './cube-converters';
 import { printDiffs } from './cube-diff';
-import { displayCube } from './display-cube';
+import { cloneCube } from './cube-utils/clone-cube';
+import { toOneLine } from './cube-utils/cube-converters';
+import { getIdentifierCube } from './cube-utils/identifier-cube';
+import { scramble } from './cube-utils/scramble';
+import { targetCube } from './cube-utils/target-cube';
 import { processKeyInEdit } from './editor';
-import { getIdentifierCube } from './identifier-cube';
 import { movements } from './movements';
 import { getMovementsForRotations } from './movements-rotated';
 import { movKeyToUser } from './movements-utils';
 import { saveState } from './persistence';
-import { question } from './question';
 import { readCube } from './read-cube';
-import { scramble } from './scramble';
 import { DIFF_MODE, MODE, STATE } from './state';
-import { targetCube } from './target-cube';
-import { clear } from './terminal-output';
+import { alertInfo, askQuestion, diffs_showMode, displayCurrentCube, main_showHelp, recording_answered, recording_started,
+	recording_summary, redrawWithTitle, rotations_formula, rotations_started } from './UI/ui';
 
 let wasPrime = false;
 
@@ -30,37 +29,17 @@ export const processKey = (keyName, shift) => {
 
 		case 'backspace':
 			if (STATE.history.length > 1) {
-				clear('Undo');
+				redrawWithTitle('Undo');
 				const previousCube = STATE.history.pop();
 				STATE.c = cloneCube(STATE.history[STATE.history.length - 1]);
-				displayCube(STATE.c);
+				displayCurrentCube();
 
 				printDiffs(previousCube, STATE.c);
 			}
 			break;
 
 		case 'f1':
-			console.log('F1 - help');
-			console.log('F2 - edit mode');
-			console.log('F3 - record movements');
-			console.log('F4 - show movements for rotated cube');
-			console.log('F5 - perform moves');
-			console.log('F6 - optimize algorithm');
-			console.log('F7 - show diff');
-			console.log('F8 - show/hide cell labels');
-			console.log('backspace - undo last move');
-			console.log('arrow keys - rotate');
-			console.log('= - reset');
-			console.log('` - scramble');
-			console.log('. - toggle identifiers/colors');
-			console.log('escape or CTRL+C - exit');
-			console.log('Movements: UDLRFB udlrfb MES xyz');
-			console.log("Press 'U to create movement U'");
-			console.log();
-
-			console.log('Saved recordings:');
-			for (const rec of STATE.savedRecordings)
-				console.log(`  ${rec.key}: ${rec.movements}`);
+			main_showHelp();
 
 			STATE.needsClearScreen = true;
 			break;
@@ -76,28 +55,21 @@ export const processKey = (keyName, shift) => {
 				STATE.mode = MODE.RECORD;
 				STATE.recording = '';
 				STATE.needsClearScreen = true;
-				console.log('Recording movements. Press F3 again to save');
+				recording_started();
 			} else {
 				STATE.mode = MODE.BROWSE;
-				if (STATE.recording === '') {
-					console.log('No movements were recorded');
-				} else {
-					console.log('Recorded movements:');
-					for (const rec of STATE.savedRecordings)
-						console.log(`  ${rec.key}: ${rec.movements}`);
-					console.log(`  <CURRENT>: ${STATE.recording}`);
-
-					question('Which key to save movements under? (0-9 or empty to cancel): ', answer => {
-						// TODO: fails after second time - answer contains movements
-						console.log(`ANSWER ${answer}`);
+				recording_summary();
+				if (STATE.recording !== '') {
+					askQuestion('Which key to save movements under? (0-9 or empty to cancel): ', answer => {
+						recording_answered(answer);
 						if (answer >= '0' && answer <= '9') {
 							// TODO: ask for name
 							STATE.savedRecordings = STATE.savedRecordings.filter(x => x.key !== answer);
 							STATE.savedRecordings.push({ key: answer, movements: STATE.recording });
 							saveState();
-							console.log('Saved');
+							alertInfo('Saved');
 						} else {
-							console.log('Canceled');
+							alertInfo('Canceled');
 						}
 						STATE.needsClearScreen = true;
 					});
@@ -109,8 +81,8 @@ export const processKey = (keyName, shift) => {
 			if (STATE.mode === MODE.ROTATED_MOVEMENTS) {
 				STATE.mode = MODE.BROWSE;
 			} else {
-				question('Type movements (UDLRFB udlrfb MES xyz) or saved recording # or reverse saved (e.g. 1\'): ', answer => {
-					console.log('Now rotate the cube to see movements for the new orientation. Press F4 again to exit');
+				askQuestion('Type movements (UDLRFB udlrfb MES xyz) or saved recording # or reverse saved (e.g. 1\'): ', answer => {
+					rotations_started();
 					STATE.mode = MODE.ROTATED_MOVEMENTS;
 					STATE.movementForRotation.movements = answer;
 					STATE.movementForRotation.rotations = '';
@@ -120,7 +92,7 @@ export const processKey = (keyName, shift) => {
 			break;
 
 		case 'f5':
-			question('Type movements (UDLRFB udlrfb MES xyz) or saved recording # or reverse saved (e.g. 1\'): ', answer => {
+			askQuestion('Type movements (UDLRFB udlrfb MES xyz) or saved recording # or reverse saved (e.g. 1\'): ', answer => {
 				act(STATE.c, 'summary', answer);
 				STATE.history.push(cloneCube(STATE.c));
 				STATE.needsClearScreen = true;
@@ -134,57 +106,49 @@ export const processKey = (keyName, shift) => {
 			break;
 
 		case 'f7':
+			diffs_showMode();
 			switch (STATE.showDiff) {
-				case DIFF_MODE.NONE:
-					STATE.showDiff = DIFF_MODE.PREVIOUS;
-					console.log('Show differences - previous cube only');
-					break;
-				case DIFF_MODE.PREVIOUS:
-					STATE.showDiff = DIFF_MODE.BOTH;
-					console.log('Show differences - both previous and next cube');
-					break;
-				case DIFF_MODE.BOTH:
-					STATE.showDiff = DIFF_MODE.NONE;
-					console.log('Hide differences');
-					break;
+				case DIFF_MODE.NONE: STATE.showDiff = DIFF_MODE.PREVIOUS; break;
+				case DIFF_MODE.PREVIOUS: STATE.showDiff = DIFF_MODE.BOTH; break;
+				case DIFF_MODE.BOTH: STATE.showDiff = DIFF_MODE.NONE; break;
 			}
 			STATE.needsClearScreen = true;
 			break;
 
 		case 'f8':
 			STATE.cellLabels = !STATE.cellLabels;
-			clear();
-			displayCube(STATE.c);
+			redrawWithTitle();
+			displayCurrentCube();
 			break;
 
 		case '=':
 			STATE.c = STATE.showColors ? readCube(targetCube) : getIdentifierCube();
-			clear('Reset');
+			redrawWithTitle('Reset');
 			STATE.history.push(cloneCube(STATE.c));
-			displayCube(STATE.c);
+			displayCurrentCube();
 			break;
 
 		case '`':
 			const scrambleRes = scramble(STATE.c, 1);
 			STATE.c = scrambleRes.cube;
-			clear('Scramble: ' + scrambleRes.path);
+			redrawWithTitle('Scramble: ' + scrambleRes.path);
 			STATE.history.push(cloneCube(STATE.c));
-			displayCube(STATE.c);
+			displayCurrentCube();
 			break;
 
 		case '.':
 			if (toOneLine(STATE.c).includes('5')) {
 				STATE.c = readCube(targetCube);
 				STATE.showColors = true;
-				clear('Show colors');
+				redrawWithTitle('Show colors');
 			} else {
 				STATE.c = getIdentifierCube();
 				STATE.showColors = false;
-				clear('Show identifiers');
+				redrawWithTitle('Show identifiers');
 				// TODO: at higher res show identifiers as color RGBOWY + number 1-9
 			}
 			STATE.history.push(cloneCube(STATE.c));
-			displayCube(STATE.c);
+			displayCurrentCube();
 			break;
 	}
 
@@ -201,9 +165,9 @@ export const processKey = (keyName, shift) => {
 	const mov = movements[movKey];
 	if (mov) {
 		const visibleMovement = movKeyToUser(movKey);
-		clear('Movement: ' + visibleMovement);
+		redrawWithTitle('Movement: ' + visibleMovement);
 		mov(STATE.c);
-		displayCube(STATE.c);
+		displayCurrentCube();
 		STATE.history.push(cloneCube(STATE.c));
 
 		if (STATE.mode === MODE.RECORD)
@@ -214,7 +178,8 @@ export const processKey = (keyName, shift) => {
 		if (STATE.mode === MODE.ROTATED_MOVEMENTS) {
 			if ('xyz'.includes(movKey[0]))
 				STATE.movementForRotation.rotations += visibleMovement;
-			console.log('Rotated movement: ' + getMovementsForRotations(STATE.movementForRotation.rotations, STATE.movementForRotation.movements));
+			const steps = getMovementsForRotations(STATE.movementForRotation.rotations, STATE.movementForRotation.movements);
+			rotations_formula(steps);
 		}
 	}
 };

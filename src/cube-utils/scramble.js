@@ -1,4 +1,4 @@
-import { movements } from './movements';
+import { movements } from '../movements';
 
 export const scramble = (cube, count) => {
 	let path = '';

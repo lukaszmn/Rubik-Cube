@@ -1,5 +1,6 @@
 import * as readline from 'readline';
-import { STATE } from './state';
+
+import { STATE } from '../../state';
 
 let rl;
 let created = false;

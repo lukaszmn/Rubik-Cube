@@ -1,7 +1,7 @@
+import { solve } from '../../solver';
+import { MODE, STATE } from '../../state';
 import { displayCube } from './display-cube';
 import { questionAsync } from './question';
-import { solve } from './solver';
-import { MODE, STATE } from './state';
 
 export const solverInterface = async () => {
 	console.log('Now enter possible movements, one per line.');
@@ -15,7 +15,7 @@ export const solverInterface = async () => {
 		{ name: '2right', movements: "yy" },
 		// { name: 'FRU', movements: "FRU R'U'F'" },
 		// { name: 'FRU2', movements: "FUR U'R'F'" },
-		// { name: 'RUR', movements: "RUR'U RUUR'" },
+		{ name: 'RUR', movements: "RUR'U RUUR'" },
 		{ name: 'rogi', movements: "RB' RFFR' BR FFRR" },
 		{ name: 'koniec-lewo', movements: "FFU LR' FF L'R UFF" },
 		{ name: 'koniec-prawo', movements: "FFU' LR' FF L'R U'FF" },

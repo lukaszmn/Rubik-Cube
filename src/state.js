@@ -1,4 +1,4 @@
-import { cloneCube } from './clone-cube';
+import { cloneCube } from './cube-utils/clone-cube';
 
 export const MODE = {
 	BROWSE: 1,

@@ -1,4 +1,4 @@
-import { STATE } from './state';
+import { STATE } from '../../state';
 
 // https://github.com/dariuszp/colog/blob/master/src/colog.js
 // https://en.wikipedia.org/wiki/ANSI_escape_code#CSI_(Control_Sequence_Introducer)_sequences

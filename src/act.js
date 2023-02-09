@@ -1,10 +1,9 @@
-import { cloneCube } from './clone-cube';
 import { printDiffs } from './cube-diff';
-import { displayCube } from './display-cube';
+import { cloneCube } from './cube-utils/clone-cube';
 import { movements } from './movements';
 import { expandMovements } from './movements-utils';
 import { DIFF_MODE, STATE } from './state';
-import { clear } from './terminal-output';
+import { alertError, displayCurrentCube, redrawWithTitle } from './ui/ui';
 
 /* showSteps = 'all' | 'summary' | 'none' */
 export const act = (cube, showSteps, steps) => {
@@ -26,19 +25,19 @@ export const act = (cube, showSteps, steps) => {
 		}
 
 		if (!movements[mov]) {
-			console.log(`ERROR: invalid movement "${mov}" in "${steps}"`);
+			alertError(`Invalid movement "${mov}" in "${steps}"`);
 			return;
 		}
 		movements[mov](cube);
 
 		if (showSteps === 'all') {
-			clear('Movement: ' + mov);
-			displayCube(cube, undefined, true);
+			redrawWithTitle('Movement: ' + mov);
+			displayCurrentCube({ animate: cube });
 
 			printDiffs(previousCube, cube);
 		} else if (showSteps === 'summary' && i === steps.length - 1) {
-			clear('Movements: ' + steps);
-			displayCube(cube, undefined, true);
+			redrawWithTitle('Movements: ' + steps);
+			displayCurrentCube({ animate: cube });
 
 			printDiffs(firstCube, cube);
 		}

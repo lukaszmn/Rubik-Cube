@@ -1,5 +1,5 @@
-import { toCube, toOneLine } from '../src/cube-converters';
-import { getIdentifierCube } from '../src/identifier-cube';
+import { toCube, toOneLine } from '../src/cube-utils/cube-converters';
+import { getIdentifierCube } from '../src/cube-utils/identifier-cube';
 import { movements } from '../src/movements';
 
 /* eslint camelcase: "off" */

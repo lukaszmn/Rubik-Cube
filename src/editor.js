@@ -1,18 +1,19 @@
 import * as fs from 'fs';
-import { cloneCube } from './clone-cube';
-import { getCellsInDirection, paintCube, REPEAT_KEY_DIRECTION } from './paint-cube';
-import { toCube, toOneLine } from './cube-converters';
-import { convertCursorPositionFromFace, convertCursorPositionToFace } from './cursor-position';
-import { displayCube } from './display-cube';
-import { movements } from './movements';
-import { readCube } from './read-cube';
-import { solverInterface } from './solver-interface';
-import { MODE, STATE } from './state';
-import { targetCube } from './target-cube';
-import { clear, colors, highlight, logAndClearLine } from './terminal-output';
-import { validate } from './validate';
 
-let cursorX = 4, cursorY = 4;
+import { cloneCube } from './cube-utils/clone-cube';
+import { toCube, toOneLine } from './cube-utils/cube-converters';
+import { targetCube } from './cube-utils/target-cube';
+import { validate } from './cube-utils/validate';
+import { convertCursorPositionFromFace, convertCursorPositionToFace } from './cursor-position';
+import { movements } from './movements';
+import { getCellsInDirection, paintCube, REPEAT_KEY_DIRECTION } from './paint-cube';
+import { readCube } from './read-cube';
+import { MODE, STATE } from './state';
+import { alertInfo, displayCurrentCube, editor_showHints, editor_showValidation, redrawWithTitle } from './UI/ui';
+import { editor_showMovement, solverInterface } from './UI/ui';
+
+let cursorX = 4;
+let cursorY = 4;
 
 const repeatKey = {
 	originalCube: undefined,
@@ -224,8 +225,8 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 				case MODE.EDIT:
 					STATE.mode = MODE.BROWSE;
 					STATE.needsClearScreen = true;
-					clear();
-					displayCube(STATE.c);
+					redrawWithTitle();
+					displayCurrentCube();
 					STATE.history.push(cloneCube(STATE.c));
 					break;
 
@@ -259,7 +260,7 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 					'cube': toOneLine(STATE.c, true),
 				};
 				fs.writeFileSync('cube.json', JSON.stringify(data, null, 2));
-				console.log('Saved');
+				alertInfo('Saved');
 				STATE.needsClearScreen = true;
 				return;
 			}
@@ -270,56 +271,25 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 				const fileContents = fs.readFileSync('cube.json', 'utf-8');
 				const data = JSON.parse(fileContents);
 				STATE.c = toCube(data.cube);
-				console.log('Loaded');
+				alertInfo('Loaded');
 				needsLaterClearScreen = true;
 			}
 			break;
 	}
 
-	switch (STATE.mode) {
-		case MODE.EDIT: clear('E D I T   M O D E'); break;
-		case MODE.OPTIMIZE_SOURCE: clear('O P T I M I Z E   -   E D I T   I N I T I A L   C U B E'); break;
-		case MODE.OPTIMIZE_TARGET: clear('O P T I M I Z E   -   E D I T   T A R G E T   C U B E'); break;
-	}
-
-	console.log(
-		'F2 - exit edit ' +
-		'| arrow keys - move cursor ' +
-		'| SHIFT + arrows - move cube ' +
-		'| CTRL + arrows - go to face ' +
-		'| PG UP/DOWN - cursor auto movement mode '
-	);
-	console.log(
-		'               ' +
-		'| R/G/B/O/W/Y/- - place color, with SHIFT - color entire face, repeat key for more modes ' +
-		'| = - reset cube ' +
-		'| CTRL + L/S - load/save state'
-	);
-	console.log();
+	editor_showHints();
 
 	const res = validate(STATE.c);
-	let s = '  Counts: ';
-	s += Array.from('RGBOWY-')
-		.map(col => {
-			const formatColor = colors[col] || 'Q';
-			const formattedColorName = formatColor.replace('Q', col);
-
-			const optionalHighlight = res.counts[col] === 9 ? 'Q' : highlight;
-			const formattedCount = optionalHighlight.replace('Q', res.counts[col]);
-
-			return formattedColorName + ' ' + formattedCount;
-		}).join(',  ');
-	s += res.valid ? '' : ' - INVALID';
-	logAndClearLine(s);
+	editor_showValidation(res);
 
 	const mov = movements[movKey];
 	if (mov) {
-		console.log('Movement: ' + movKey.replace('_', "'"));
+		editor_showMovement(movKey.replace('_', "'"));
 		mov(STATE.c);
 	} else
-		console.log();
+		editor_showMovement('');
 
-	displayCube(STATE.c, autoMovement.highlightCells, true);
+	displayCurrentCube({ highlightCells: autoMovement.highlightCells });
 
 	if (needsLaterClearScreen)
 		STATE.needsClearScreen = true;

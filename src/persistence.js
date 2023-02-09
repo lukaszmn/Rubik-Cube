@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+
 import { STATE } from './state';
 
 const FILE = 'config.json';

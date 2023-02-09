@@ -1,5 +1,5 @@
-import { createSide } from './create-side';
-import { rotateFace } from './rotate-face';
+import { createSide } from './cube-utils/create-side';
+import { rotateFace } from './cube-utils/rotate-face';
 
 const transformCube = (faceToRotate, edge1, edge2, edge3, edge4) => {
 
