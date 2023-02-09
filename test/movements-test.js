@@ -1,8 +1,10 @@
-import { toCube, toOneLine } from './src/cube-converters';
-import { getIdentifierCube } from './src/identifier-cube';
-import { movements } from './src/movements';
+import { toCube, toOneLine } from '../src/cube-converters';
+import { getIdentifierCube } from '../src/identifier-cube';
+import { movements } from '../src/movements';
 
 /* eslint camelcase: "off" */
+
+console.log('Testing movements');
 
 const test_checkMovements_data = () => {
 	const expected = [
@@ -180,3 +182,5 @@ test_checkLocations_no_duplicates();
 
 test_checkMovements_constraints();
 test_checkMovements_data();
+
+console.log('-> OK');

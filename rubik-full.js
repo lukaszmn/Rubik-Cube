@@ -39,6 +39,7 @@ process.stdin.on('keypress', (str, key) => {
 	switch (STATE.mode) {
 		case MODE.BROWSE:
 		case MODE.RECORD:
+		case MODE.ROTATED_MOVEMENTS:
 			processKey(keyName, key.shift);
 			break;
 

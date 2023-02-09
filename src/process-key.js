@@ -6,6 +6,8 @@ import { displayCube } from './display-cube';
 import { processKeyInEdit } from './editor';
 import { getIdentifierCube } from './identifier-cube';
 import { movements } from './movements';
+import { getMovementsForRotations } from './movements-rotated';
+import { movKeyToUser } from './movements-utils';
 import { saveState } from './persistence';
 import { question } from './question';
 import { readCube } from './read-cube';
@@ -41,7 +43,8 @@ export const processKey = (keyName, shift) => {
 			console.log('F1 - help');
 			console.log('F2 - edit mode');
 			console.log('F3 - record movements');
-			console.log('F4 - perform moves');
+			console.log('F4 - show movements for rotated cube');
+			console.log('F5 - perform moves');
 			console.log('F6 - optimize algorithm');
 			console.log('F7 - show diff');
 			console.log('F8 - show/hide cell labels');
@@ -103,6 +106,20 @@ export const processKey = (keyName, shift) => {
 			break;
 
 		case 'f4':
+			if (STATE.mode === MODE.ROTATED_MOVEMENTS) {
+				STATE.mode = MODE.BROWSE;
+			} else {
+				question('Type movements (UDLRFB udlrfb MES xyz) or saved recording # or reverse saved (e.g. 1\'): ', answer => {
+					console.log('Now rotate the cube to see movements for the new orientation. Press F4 again to exit');
+					STATE.mode = MODE.ROTATED_MOVEMENTS;
+					STATE.movementForRotation.movements = answer;
+					STATE.movementForRotation.rotations = '';
+					STATE.needsClearScreen = true;
+				});
+			}
+			break;
+
+		case 'f5':
 			question('Type movements (UDLRFB udlrfb MES xyz) or saved recording # or reverse saved (e.g. 1\'): ', answer => {
 				act(STATE.c, 'summary', answer);
 				STATE.history.push(cloneCube(STATE.c));
@@ -183,7 +200,7 @@ export const processKey = (keyName, shift) => {
 
 	const mov = movements[movKey];
 	if (mov) {
-		const visibleMovement = movKey.replace('_', "'");
+		const visibleMovement = movKeyToUser(movKey);
 		clear('Movement: ' + visibleMovement);
 		mov(STATE.c);
 		displayCube(STATE.c);
@@ -193,5 +210,11 @@ export const processKey = (keyName, shift) => {
 			STATE.recording += visibleMovement;
 		else
 			printDiffs(STATE.history[STATE.history.length - 2], STATE.c);
+
+		if (STATE.mode === MODE.ROTATED_MOVEMENTS) {
+			if ('xyz'.includes(movKey[0]))
+				STATE.movementForRotation.rotations += visibleMovement;
+			console.log('Rotated movement: ' + getMovementsForRotations(STATE.movementForRotation.rotations, STATE.movementForRotation.movements));
+		}
 	}
 };

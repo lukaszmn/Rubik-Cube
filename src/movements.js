@@ -65,6 +65,9 @@ const _movements = {
 	F: cube => transformCube(cube.F, columnDown(cube.R, 0), rowLeft(cube.D, 0), columnUp(cube.L, 2), rowRight(cube.U, 2)),
 	B: cube => transformCube(cube.B, columnDown(cube.L, 0), rowRight(cube.D, 2), columnUp(cube.R, 2), rowLeft(cube.U, 0)),
 
+	// M - middle (parallel to R) down (mid col)
+	// E - middle (parallel to U) right (mid row)
+	// S - middle (parallel to F) right (mid plane)
 	M: cube => transformCube(null, columnDown(cube.U, 1), columnDown(cube.F, 1), columnDown(cube.D, 1), columnUp(cube.B, 1)),
 	E: cube => transformCube(null, rowRight(cube.L, 1), rowRight(cube.F, 1), rowRight(cube.R, 1), rowRight(cube.B, 1)),
 	S: cube => transformCube(null, columnDown(cube.R, 1), rowLeft(cube.D, 1), columnUp(cube.L, 1), rowRight(cube.U, 1)),
@@ -88,6 +91,7 @@ export const movements = {
 	f: cube => { _movements.F(cube); movements.S(cube); },
 	b: cube => { _movements.B(cube); movements.S_(cube); },
 
+	// x - up (like R), y - left (life U), z - rotate cube like F
 	x: cube => { movements.r(cube); movements.L_(cube); },
 	y: cube => { movements.u(cube); movements.D_(cube); },
 	z: cube => { movements.f(cube); movements.B_(cube); },

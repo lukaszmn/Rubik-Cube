@@ -7,6 +7,7 @@ export const MODE = {
 	OPTIMIZE_TARGET: 4,
 	OPTIMIZE_CUSTOM: 5,
 	RECORD: 6,
+	ROTATED_MOVEMENTS: 7,
 };
 
 export const DIFF_MODE = {
@@ -27,6 +28,7 @@ export const STATE = {
 	showColors: true,
 	showDiff: DIFF_MODE.NONE,
 	cellLabels: true,
+	movementForRotation: { movements: '', rotations: '' },
 };
 
 export const initState = cube => {
@@ -41,4 +43,5 @@ export const initState = cube => {
 	STATE.showColors = true;
 	STATE.showDiff = DIFF_MODE.NONE;
 	STATE.cellLabels = true;
+	STATE.movementForRotation = { movements: '', rotations: '' };
 };
