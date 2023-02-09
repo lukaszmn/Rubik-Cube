@@ -3,15 +3,15 @@ import { printDiffs } from './cube-diff';
 import { cloneCube } from './cube-utils/clone-cube';
 import { toOneLine } from './cube-utils/cube-converters';
 import { getIdentifierCube } from './cube-utils/identifier-cube';
+import { readCube } from './cube-utils/read-cube';
 import { scramble } from './cube-utils/scramble';
 import { targetCube } from './cube-utils/target-cube';
-import { processKeyInEdit } from './editor';
+import { saveState } from './data/persistence';
+import { DIFF_MODE, MODE, STATE } from './data/state';
+import { processKeyInEdit } from './editing/editor';
+import { getMovementsForRotations } from './feats/movements-rotated';
 import { movements } from './movements';
-import { getMovementsForRotations } from './movements-rotated';
 import { movKeyToUser } from './movements-utils';
-import { saveState } from './persistence';
-import { readCube } from './read-cube';
-import { DIFF_MODE, MODE, STATE } from './state';
 import { alertInfo, askQuestion, diffs_showMode, displayCurrentCube, main_showHelp, recording_answered, recording_started,
 	recording_summary, redrawWithTitle, rotations_formula, rotations_started } from './UI/ui';
 

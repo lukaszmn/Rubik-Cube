@@ -1,6 +1,6 @@
-import { act } from './act';
-import { toCube, toOneLine } from './cube-utils/cube-converters';
-import { getIdentifierCube } from './cube-utils/identifier-cube';
+import { act } from '../act';
+import { toCube, toOneLine } from '../cube-utils/cube-converters';
+import { getIdentifierCube } from '../cube-utils/identifier-cube';
 
 /* example:
 const options = [

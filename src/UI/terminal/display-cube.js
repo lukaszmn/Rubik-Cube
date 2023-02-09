@@ -1,5 +1,5 @@
 import { rotateFace } from '../../cube-utils/rotate-face';
-import { MODE, STATE } from '../../state';
+import { MODE, STATE } from '../../data/state';
 import { colors, grayBackgrounds, highlight, highlight2 } from './terminal-output';
 
 export const displayCube = (cube, highlightCells, hideHints) => {

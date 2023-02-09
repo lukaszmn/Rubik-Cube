@@ -1,4 +1,4 @@
-import { getMovementForRotations } from '../src/movements-rotated';
+import { getMovementForRotations } from '../src/feats/movements-rotated';
 
 /* eslint camelcase: "off" */
 

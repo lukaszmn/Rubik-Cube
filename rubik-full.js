@@ -1,11 +1,11 @@
 import { emitKeypressEvents } from 'readline';
 
+import { readCube } from './src/cube-utils/read-cube';
 import { targetCube } from './src/cube-utils/target-cube';
-import { processKeyInEdit } from './src/editor';
-import { loadState } from './src/persistence';
+import { loadState } from './src/data/persistence';
+import { initState, MODE, STATE } from './src/data/state';
+import { processKeyInEdit } from './src/editing/editor';
 import { processKey } from './src/process-key';
-import { readCube } from './src/read-cube';
-import { initState, MODE, STATE } from './src/state';
 import { displayCurrentCube, redrawWithTitle } from './src/UI/ui';
 
 

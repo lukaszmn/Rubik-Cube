@@ -1,16 +1,16 @@
 import * as fs from 'fs';
 
-import { cloneCube } from './cube-utils/clone-cube';
-import { toCube, toOneLine } from './cube-utils/cube-converters';
-import { targetCube } from './cube-utils/target-cube';
-import { validate } from './cube-utils/validate';
+import { cloneCube } from '../cube-utils/clone-cube';
+import { toCube, toOneLine } from '../cube-utils/cube-converters';
+import { readCube } from '../cube-utils/read-cube';
+import { targetCube } from '../cube-utils/target-cube';
+import { validate } from '../cube-utils/validate';
+import { MODE, STATE } from '../data/state';
+import { movements } from '../movements';
+import { alertInfo, displayCurrentCube, editor_showHints, editor_showValidation, redrawWithTitle } from '../UI/ui';
+import { editor_showMovement, solverInterface } from '../UI/ui';
 import { convertCursorPositionFromFace, convertCursorPositionToFace } from './cursor-position';
-import { movements } from './movements';
 import { getCellsInDirection, paintCube, REPEAT_KEY_DIRECTION } from './paint-cube';
-import { readCube } from './read-cube';
-import { MODE, STATE } from './state';
-import { alertInfo, displayCurrentCube, editor_showHints, editor_showValidation, redrawWithTitle } from './UI/ui';
-import { editor_showMovement, solverInterface } from './UI/ui';
 
 let cursorX = 4;
 let cursorY = 4;

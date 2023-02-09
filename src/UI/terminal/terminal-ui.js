@@ -1,4 +1,4 @@
-import { DIFF_MODE, MODE, STATE } from '../../state';
+import { DIFF_MODE, MODE, STATE } from '../../data/state';
 import { displayCube } from './display-cube';
 import { question } from './question';
 import { clear, colors, highlight, logAndClearLine } from './terminal-output';

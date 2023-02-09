@@ -1,8 +1,8 @@
-import { act } from './act';
-import { toOneLine } from './cube-utils/cube-converters';
-import { getIdentifierCube } from './cube-utils/identifier-cube';
-import { movements } from './movements';
-import { expandMovements, movKeyToUser, reverseMovements } from './movements-utils';
+import { act } from '../act';
+import { toOneLine } from '../cube-utils/cube-converters';
+import { getIdentifierCube } from '../cube-utils/identifier-cube';
+import { movements } from '../movements';
+import { expandMovements, movKeyToUser, reverseMovements } from '../movements-utils';
 
 export const getMovementForRotations = (rotations, step) => {
 	if (step.length !== 1)

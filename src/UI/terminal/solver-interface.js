@@ -1,5 +1,5 @@
-import { solve } from '../../solver';
-import { MODE, STATE } from '../../state';
+import { MODE, STATE } from '../../data/state';
+import { solve } from '../../feats/solver';
 import { displayCube } from './display-cube';
 import { questionAsync } from './question';
 

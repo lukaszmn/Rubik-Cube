@@ -1,4 +1,4 @@
-import { DIFF_MODE, STATE } from './state';
+import { DIFF_MODE, STATE } from './data/state';
 import { showCurrentCubeDiff, showPreviousCubeDiff } from './UI/ui';
 
 export const printDiffs = (previousCube, currentCube) => {

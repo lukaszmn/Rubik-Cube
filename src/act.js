@@ -1,8 +1,8 @@
 import { printDiffs } from './cube-diff';
 import { cloneCube } from './cube-utils/clone-cube';
+import { DIFF_MODE, STATE } from './data/state';
 import { movements } from './movements';
 import { expandMovements } from './movements-utils';
-import { DIFF_MODE, STATE } from './state';
 import { alertError, displayCurrentCube, redrawWithTitle } from './ui/ui';
 
 /* showSteps = 'all' | 'summary' | 'none' */

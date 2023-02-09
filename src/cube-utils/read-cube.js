@@ -1,4 +1,4 @@
-import { createSide } from './cube-utils/create-side';
+import { createSide } from './create-side';
 
 export const readCube = arr => {
 	const cube = {

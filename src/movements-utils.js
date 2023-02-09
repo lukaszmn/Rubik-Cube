@@ -1,4 +1,4 @@
-import { STATE } from './state';
+import { STATE } from './data/state';
 
 export const movUserToKey = steps => steps.replace(/'/, '_');
 export const movKeyToUser = steps => steps.replace(/_/, "'");
