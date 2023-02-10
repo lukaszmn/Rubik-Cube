@@ -4,13 +4,13 @@ import { STATE } from './data/state';
  * @param {string} steps
  * @return {string}
  */
-export const movUserToKey = steps => steps.replace(/'/, '_');
+export const movUserToKey = steps => steps.replace(/'/g, '_');
 
 /**
  * @param {string} steps
  * @return {string}
  */
-export const movKeyToUser = steps => steps.replace(/_/, "'");
+export const movKeyToUser = steps => steps.replace(/_/g, "'");
 
 /**
  * Returns movements in reverse order with reverse steps, e.g. "RU'D" -> "D'UR'"

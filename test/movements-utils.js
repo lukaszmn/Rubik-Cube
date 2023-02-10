@@ -1,4 +1,4 @@
-import { reverseMovements } from '../src/movements-utils';
+import { movUserToKey, reverseMovements } from '../src/movements-utils';
 
 const reverseMovementsTests = () => {
 	const cases = [
@@ -13,4 +13,18 @@ const reverseMovementsTests = () => {
 	}
 };
 
+const movUserToKeyTests = () => {
+	const cases = [
+		['RUD', 'RUD'],
+		["RU'D", 'RU_D'],
+		["RU' D'", 'RU_ D_'],
+	];
+	for (const [data, expected] of cases) {
+		const actual = movUserToKey(data);
+		if (actual !== expected)
+			throw new Error(`movUserToKey("${data}") should be "${expected}" but was "${actual}"`);
+	}
+};
+
 reverseMovementsTests();
+movUserToKeyTests();

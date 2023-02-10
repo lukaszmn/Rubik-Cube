@@ -42,6 +42,6 @@ export const getMovementsForRotations = async (rotations, steps) => {
 	const movRotated = (await Promise.all(movArr
 		.map(async c => (c === "'" || c === ' ') ? c : await getMovementForRotations(rotations, c))
 	)).join('');
-	const movWithoutDoubleApostrophe = movRotated.replace(/''/, '');
+	const movWithoutDoubleApostrophe = movRotated.replace(/''/g, '');
 	return movWithoutDoubleApostrophe;
 };
