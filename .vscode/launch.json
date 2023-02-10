@@ -6,7 +6,20 @@
 			"request": "launch",
 			"runtimeArgs": [
 				"run-script",
-				"debug"
+				"start"
+			],
+			"runtimeExecutable": "npm",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"type": "node"
+		},
+		{
+			"name": "Test via NPM",
+			"request": "launch",
+			"runtimeArgs": [
+				"run-script",
+				"test"
 			],
 			"runtimeExecutable": "npm",
 			"skipFiles": [
