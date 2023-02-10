@@ -62,6 +62,7 @@ export const DIFF_MODE = {
  * @property {StateDiffModeValue} showDiff
  * @property {boolean} cellLabels
  * @property {MovementForRotation} movementForRotation
+ * @property {number} animationSpeed
  */
 /**
  * @type {State}
@@ -79,6 +80,7 @@ export const STATE = {
 	showDiff: DIFF_MODE.NONE,
 	cellLabels: true,
 	movementForRotation: { movements: '', rotations: '' },
+	animationSpeed: 30,
 };
 
 /**
@@ -120,4 +122,5 @@ export const initState = cube => {
 	STATE.showDiff = DIFF_MODE.NONE;
 	STATE.cellLabels = true;
 	STATE.movementForRotation = { movements: '', rotations: '' };
+	STATE.animationSpeed = 30;
 };

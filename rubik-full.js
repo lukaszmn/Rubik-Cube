@@ -2,7 +2,7 @@ import { emitKeypressEvents } from 'readline';
 
 import { readCube } from './src/cube-utils/read-cube';
 import { targetCube } from './src/cube-utils/target-cube';
-import { loadState } from './src/data/persistence';
+import { loadState, saveState } from './src/data/persistence';
 import { initState, MODE, STATE } from './src/data/state';
 import { processKeyInEdit } from './src/editing/editor';
 import { processKey } from './src/process-key';
@@ -26,9 +26,12 @@ if (process.stdin.isTTY)
 process.stdin.on('keypress', (str, key) => {
 	if (STATE.typingMode)
 		return;
+
 	// esc, CTRL+C
-	if (key.name === 'escape' || key.sequence === '\x03')
+	if (key.name === 'escape' || key.sequence === '\x03') {
+		saveState();
 		process.exit();
+	}
 
 	let keyName = key.name || str;
 	if (key.shift && keyName.length === 1)

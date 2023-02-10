@@ -155,12 +155,14 @@ export const main_showHelp = () => {
 	console.log('F6 - optimize algorithm');
 	console.log('F7 - show diff');
 	console.log('F8 - show/hide cell labels');
+	console.log('F9 - options');
+	console.log('. - toggle identifiers/colors');
+	console.log('escape or CTRL+C - exit');
+	console.log();
 	console.log('backspace - undo last move');
 	console.log('arrow keys - rotate');
 	console.log('= - reset');
 	console.log('` - scramble');
-	console.log('. - toggle identifiers/colors');
-	console.log('escape or CTRL+C - exit');
 	console.log('Movements: UDLRFB udlrfb MES xyz');
 	console.log("Press 'U to create movement U'");
 	console.log();

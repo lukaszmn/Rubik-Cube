@@ -7,14 +7,14 @@ import { expandMovements, movKeyToUser, reverseMovements } from '../movements-ut
 /**
  * @param {string} rotations
  * @param {string} step - single character
- * @return {string | undefined}
+ * @return {Promise<string | undefined>}
  */
-export const getMovementForRotations = (rotations, step) => {
+export const getMovementForRotations = async (rotations, step) => {
 	if (step.length !== 1)
 		throw new Error('Pass only 1 movement');
 
 	const expected = getIdentifierCube();
-	act(expected, 'none', step);
+	await act(expected, 'none', step);
 	const expectedS = toOneLine(expected);
 
 	const rotationsReverse = reverseMovements(rotations);
@@ -22,7 +22,7 @@ export const getMovementForRotations = (rotations, step) => {
 	for (const name of Object.getOwnPropertyNames(movements)) {
 		const actual = getIdentifierCube();
 		const name1 = movKeyToUser(name);
-		act(actual, 'none', rotations + name1 + rotationsReverse);
+		await act(actual, 'none', rotations + name1 + rotationsReverse);
 		const actualS = toOneLine(actual);
 		if (actualS === expectedS)
 			return name1;
@@ -34,14 +34,14 @@ export const getMovementForRotations = (rotations, step) => {
 /**
  * @param {string} rotations
  * @param {string} steps
- * @return {string}
+ * @return {Promise<string>}
  */
-export const getMovementsForRotations = (rotations, steps) => {
+export const getMovementsForRotations = async (rotations, steps) => {
 	const stepsExpanded = expandMovements(steps);
 	const movArr = Array.from(stepsExpanded);
-	const movRotated = movArr
-		.map(c => c === "'" ? "'" : getMovementForRotations(rotations, c))
-		.join('');
+	const movRotated = (await Promise.all(movArr
+		.map(async c => (c === "'" || c === ' ') ? c : await getMovementForRotations(rotations, c))
+	)).join('');
 	const movWithoutDoubleApostrophe = movRotated.replace(/''/, '');
 	return movWithoutDoubleApostrophe;
 };

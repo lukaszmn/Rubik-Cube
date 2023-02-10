@@ -1,4 +1,4 @@
-import { act } from './act';
+import { act, sleep } from './act';
 import { printDiffs } from './cube-diff';
 import { cloneCube } from './cube-utils/clone-cube';
 import { toOneLine } from './cube-utils/cube-converters';
@@ -11,6 +11,7 @@ import { DIFF_MODE, MODE, STATE } from './data/state';
 import { processKeyInEdit } from './editing/editor';
 import { getMovementsForRotations } from './feats/movements-rotated';
 import { movements } from './movements';
+import { movementsAnimated } from './movements-animated';
 import { movKeyToUser } from './movements-utils';
 import { alertInfo, askQuestion, diffs_showMode, displayCurrentCube, main_showHelp, recording_answered, recording_started,
 	recording_summary, redrawWithTitle, rotations_formula, rotations_started } from './UI/ui';
@@ -21,7 +22,7 @@ let wasPrime = false;
  * @param {string} keyName
  * @param {boolean} shift
  */
-export const processKey = (keyName, shift) => {
+export const processKey = async (keyName, shift) => {
 	let movKey = keyName + (wasPrime ? '_' : '');
 
 	switch (keyName) {
@@ -126,6 +127,13 @@ export const processKey = (keyName, shift) => {
 			displayCurrentCube();
 			break;
 
+		case 'f9':
+			askQuestion(`Current animation delay: ${STATE.animationSpeed} milliseconds. Enter new delay (0-disable): `, answer => {
+				STATE.animationSpeed = +answer;
+				STATE.needsClearScreen = true;
+			});
+			break;
+
 		case '=':
 			STATE.c = STATE.showColors ? readCube(targetCube) : getIdentifierCube();
 			redrawWithTitle('Reset');
@@ -161,7 +169,7 @@ export const processKey = (keyName, shift) => {
 
 	const savedRecordingForKey = STATE.savedRecordings.find(x => x.key === keyName);
 	if (savedRecordingForKey) {
-		act(STATE.c, 'summary', savedRecordingForKey.movements);
+		await act(STATE.c, 'summary', savedRecordingForKey.movements);
 		STATE.history.push(cloneCube(STATE.c));
 		STATE.needsClearScreen = true;
 		return;
@@ -170,6 +178,19 @@ export const processKey = (keyName, shift) => {
 	const mov = movements[movKey];
 	if (mov) {
 		const visibleMovement = movKeyToUser(movKey);
+
+		if (STATE.animationSpeed > 0) {
+			const anim = movementsAnimated[movKey](STATE.c);
+			for (let animIndex = 0; animIndex < anim.length; ++animIndex) {
+				const cubeAnim = anim[animIndex];
+
+				redrawWithTitle('Movement: ' + visibleMovement);
+				displayCurrentCube({ animate: cubeAnim });
+
+				await sleep(STATE.animationSpeed);
+			}
+		}
+
 		redrawWithTitle('Movement: ' + visibleMovement);
 		mov(STATE.c);
 		displayCurrentCube();
@@ -183,7 +204,7 @@ export const processKey = (keyName, shift) => {
 		if (STATE.mode === MODE.ROTATED_MOVEMENTS) {
 			if ('xyz'.includes(movKey[0]))
 				STATE.movementForRotation.rotations += visibleMovement;
-			const steps = getMovementsForRotations(STATE.movementForRotation.rotations, STATE.movementForRotation.movements);
+			const steps = await getMovementsForRotations(STATE.movementForRotation.rotations, STATE.movementForRotation.movements);
 			rotations_formula(steps);
 		}
 	}

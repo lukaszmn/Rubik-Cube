@@ -3,7 +3,8 @@ import { cloneCube } from './cube-utils/clone-cube';
 import * as CubeTypes from './cube-utils/identifier-cube';
 import { DIFF_MODE, STATE } from './data/state';
 import { movements } from './movements';
-import { expandMovements } from './movements-utils';
+import { movementsAnimated } from './movements-animated';
+import { expandMovements, movKeyToUser } from './movements-utils';
 import { alertError, displayCurrentCube, redrawWithTitle } from './ui/ui';
 
 /**
@@ -11,7 +12,7 @@ import { alertError, displayCurrentCube, redrawWithTitle } from './ui/ui';
  * @param {'all' | 'summary' | 'none'} showSteps
  * @param {string} steps
  */
-export const act = (cube, showSteps, steps) => {
+export const act = async (cube, showSteps, steps) => {
 	const showPreviousCube = STATE.showDiff !== DIFF_MODE.NONE && showSteps !== 'none';
 
 	const firstCube = showPreviousCube ? cloneCube(cube) : undefined;
@@ -33,20 +34,46 @@ export const act = (cube, showSteps, steps) => {
 			alertError(`Invalid movement "${mov}" in "${steps}"`);
 			return;
 		}
-		movements[mov](cube);
 
-		if (showSteps === 'all') {
-			redrawWithTitle('Movement: ' + mov);
-			displayCurrentCube({ animate: cube });
+		const visibleMovement = movKeyToUser(mov);
 
-			printDiffs(previousCube, cube);
-		} else if (showSteps === 'summary' && i === steps.length - 1) {
-			redrawWithTitle('Movements: ' + steps);
-			displayCurrentCube({ animate: cube });
+		if (STATE.animationSpeed > 0 && showSteps !== 'none') {
+			const anim = movementsAnimated[mov](cube);
+			for (let animIndex = 0; animIndex < anim.length; ++animIndex) {
+				const cubeAnim = anim[animIndex];
 
-			printDiffs(firstCube, cube);
+				if (showSteps === 'all') {
+					redrawWithTitle('Movement: ' + visibleMovement);
+					displayCurrentCube({ animate: cubeAnim });
+
+					printDiffs(previousCube, cubeAnim);
+				} else if (showSteps === 'summary' && i === steps.length - 1) {
+					redrawWithTitle('Movements: ' + steps);
+					displayCurrentCube({ animate: cubeAnim });
+
+					printDiffs(firstCube, cubeAnim);
+				}
+
+				await sleep(STATE.animationSpeed);
+			}
+		} else {
+			if (showSteps === 'all') {
+				redrawWithTitle('Movement: ' + visibleMovement);
+				displayCurrentCube({ animate: cube });
+
+				printDiffs(previousCube, cube);
+			} else if (showSteps === 'summary' && i === steps.length - 1) {
+				redrawWithTitle('Movements: ' + steps);
+				displayCurrentCube({ animate: cube });
+
+				printDiffs(firstCube, cube);
+			}
 		}
+
+		movements[mov](cube);
 
 		previousCube = showPreviousCube ? cloneCube(cube) : undefined;
 	}
 };
+
+export const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));

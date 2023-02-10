@@ -1,6 +1,7 @@
 import { toCube, toOneLine } from '../src/cube-utils/cube-converters';
 import { getIdentifierCube } from '../src/cube-utils/identifier-cube';
 import { movements } from '../src/movements';
+import { movementsAnimated } from '../src/movements-animated';
 
 /* eslint camelcase: "off" */
 
@@ -47,7 +48,9 @@ const test_checkMovements_data = () => {
 		'z_ TWZSVYRUX 258147036 KNQJMPILO lorknqjmp gdahebifc BEHADG9CF',
 	];
 
-	const actual = [
+	// movements
+
+	let actual = [
 		'0  ' + toOneLine(getIdentifierCube(), true),
 	];
 
@@ -64,7 +67,40 @@ const test_checkMovements_data = () => {
 		const expectedLine = expected[i];
 		const actualLine = actual[i];
 		if (expectedLine !== actualLine)
-			throw new Error(`Rows are different:\n${actualLine}\nbut expected:\n${expectedLine}`);
+			throw new Error(`Movements - rows are different:\n${actualLine}\nbut expected:\n${expectedLine}`);
+	}
+
+	// movementsAnimated
+
+	actual = [
+		'0  ' + toOneLine(getIdentifierCube(), true),
+	];
+
+	for (const name of Object.getOwnPropertyNames(movementsAnimated).sort()) {
+		const mov = movementsAnimated[name];
+		const next = mov(getIdentifierCube())[5];
+
+		const line = (name + '  ').substr(0, 3) + toOneLine(next, true);
+		actual.push(line);
+	}
+
+	for (let i = 0; i < Math.max(expected.length, actual.length); ++i) {
+		const expectedLine = expected[i];
+		const actualLine = actual[i];
+		if (expectedLine !== actualLine)
+			console.log(`MovementsAnimated - rows are different:\n${actualLine}\nbut expected:\n${expectedLine}`);
+	}
+
+	// cross-check
+
+	for (const name of Object.getOwnPropertyNames(movementsAnimated).sort()) {
+		if (!movements[name])
+			throw new Error(`Movements misses, MovementsAnimated has name: ${name}`);
+	}
+
+	for (const name of Object.getOwnPropertyNames(movements).sort()) {
+		if (!movementsAnimated[name])
+			throw new Error(`Movements has, MovementsAnimated misses name: ${name}`);
 	}
 };
 
@@ -76,6 +112,13 @@ const test_checkMovements_constraints = () => {
 		mov(next);
 		verifyConstraints(name, prev, next);
 	}
+
+	for (const name of Object.getOwnPropertyNames(movementsAnimated)) {
+		const mov = movementsAnimated[name];
+		const prev = getIdentifierCube();
+		const next = mov(getIdentifierCube())[5];
+		verifyConstraints(name, prev, next);
+	}
 };
 
 const verifyConstraints = (movementName, prev, next) => {
@@ -85,6 +128,8 @@ const verifyConstraints = (movementName, prev, next) => {
 
 	const prevCells = getCells(prev);
 	const nextCells = getCells(next);
+	// console.log({movementName, x: 'prev', prevCells});
+	// console.log({movementName, x: 'next', nextCells});
 
 	const remainingCells = nextCells.filter(x => !prevCells.includes(x));
 
