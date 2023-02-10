@@ -47,6 +47,7 @@ export const colors = {
 
 export const highlight = BACKGROUND.CYAN + 'Q' + FONT.DEFAULT;
 export const highlight2 = BACKGROUND.RGB(238) + FONT.UNDERLINE + 'Q' + FONT.DEFAULT;
+export const highlightMagenta = BACKGROUND.RGB(5) + 'Q' + FONT.DEFAULT;
 export const grayBackgrounds = [ BACKGROUND.DEFAULT, BACKGROUND.RGB(234), BACKGROUND.RGB(236) ];
 
 export const clearScreen = () => {

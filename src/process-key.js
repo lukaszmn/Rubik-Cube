@@ -13,7 +13,7 @@ import { getMovementsForRotations } from './feats/movements-rotated';
 import { movements } from './movements';
 import { movementsAnimated } from './movements-animated';
 import { movKeyToUser } from './movements-utils';
-import { alertInfo, askQuestion, diffs_showMode, displayCurrentCube, main_showHelp, recording_answered, recording_started,
+import { alertInfo, askQuestion, diffs_showMode, displayCurrentCube, main_showHelp, playing_showState, recording_answered, recording_started,
 	recording_summary, redrawWithTitle, rotations_formula, rotations_started } from './UI/ui';
 
 let wasPrime = false;
@@ -21,8 +21,9 @@ let wasPrime = false;
 /**
  * @param {string} keyName
  * @param {boolean} shift
+ * @param {boolean} ctrl
  */
-export const processKey = async (keyName, shift) => {
+export const processKey = async (keyName, shift, ctrl) => {
 	let movKey = keyName + (wasPrime ? '_' : '');
 
 	switch (keyName) {
@@ -98,11 +99,67 @@ export const processKey = async (keyName, shift) => {
 			break;
 
 		case 'f5':
-			askQuestion('Type movements (UDLRFB udlrfb MES xyz) or saved recording # or reverse saved (e.g. 1\'): ', answer => {
-				act(STATE.c, 'summary', answer);
-				STATE.history.push(cloneCube(STATE.c));
+			if (!ctrl) {
+				askQuestion('Perform moves.\nType movements (UDLRFB udlrfb MES xyz) or saved recording # or reverse saved (e.g. 1\'): ', answer => {
+					act(STATE.c, 'summary', answer);
+					STATE.history.push(cloneCube(STATE.c));
+					STATE.needsClearScreen = true;
+				});
+			} else if (STATE.mode === MODE.RECORDED_MOVEMENTS_PLAY) {
+				STATE.mode = MODE.BROWSE;
 				STATE.needsClearScreen = true;
-			});
+			} else {
+				askQuestion('Play moves.\nType movements (UDLRFB udlrfb MES xyz) or saved recording # or reverse saved (e.g. 1\'): ', answer => {
+					STATE.mode = MODE.RECORDED_MOVEMENTS_PLAY;
+					STATE.playing.init(STATE.c, answer);
+					playing_showState();
+					STATE.needsClearScreen = true;
+				});
+			}
+			break;
+
+		case 'pagedown':
+			if (STATE.mode === MODE.ROTATED_MOVEMENTS_PLAY || STATE.mode === MODE.RECORDED_MOVEMENTS_PLAY) {
+				const steps = STATE.playing.stepForward();
+				if (steps) {
+					await act(STATE.c, 'all', steps);
+					playing_showState();
+					STATE.needsClearScreen = true;
+				}
+			}
+			break;
+
+		case 'pageup':
+			if (STATE.mode === MODE.ROTATED_MOVEMENTS_PLAY || STATE.mode === MODE.RECORDED_MOVEMENTS_PLAY) {
+				const steps = STATE.playing.stepBackward();
+				if (steps) {
+					await act(STATE.c, 'all', steps);
+					playing_showState();
+					STATE.needsClearScreen = true;
+				}
+			}
+			break;
+
+		case 'home':
+			if (STATE.mode === MODE.ROTATED_MOVEMENTS_PLAY || STATE.mode === MODE.RECORDED_MOVEMENTS_PLAY) {
+				const steps = STATE.playing.goToStart();
+				if (steps) {
+					await act(STATE.c, 'all', steps);
+					playing_showState();
+					STATE.needsClearScreen = true;
+				}
+			}
+			break;
+
+		case 'end':
+			if (STATE.mode === MODE.ROTATED_MOVEMENTS_PLAY || STATE.mode === MODE.RECORDED_MOVEMENTS_PLAY) {
+				const steps = STATE.playing.goToEnd();
+				if (steps) {
+					await act(STATE.c, 'all', steps);
+					playing_showState();
+					STATE.needsClearScreen = true;
+				}
+			}
 			break;
 
 		case 'f6':
@@ -207,5 +264,10 @@ export const processKey = async (keyName, shift) => {
 			const steps = await getMovementsForRotations(STATE.movementForRotation.rotations, STATE.movementForRotation.movements);
 			rotations_formula(steps);
 		}
+
+		if (STATE.mode === MODE.ROTATED_MOVEMENTS_PLAY || STATE.mode === MODE.RECORDED_MOVEMENTS_PLAY) {
+			playing_showState();
+		}
+
 	}
 };

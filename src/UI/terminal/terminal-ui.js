@@ -4,7 +4,7 @@ import { DIFF_MODE, MODE, STATE } from '../../data/state';
 import * as HighlightTypes from '../../editing/cell-highlight';
 import { displayCube } from './display-cube';
 import { question } from './question';
-import { clear, colors, highlight, logAndClearLine } from './terminal-output';
+import { clear, colors, highlight, highlightMagenta, logAndClearLine } from './terminal-output';
 /**
  * @param {string} msg
  */
@@ -152,6 +152,7 @@ export const main_showHelp = () => {
 	console.log('F3 - record movements');
 	console.log('F4 - show movements for rotated cube');
 	console.log('F5 - perform moves');
+	console.log('CTRL+F5 - play moves');
 	console.log('F6 - optimize algorithm');
 	console.log('F7 - show diff');
 	console.log('F8 - show/hide cell labels');
@@ -211,4 +212,11 @@ export const diffs_showMode = () => {
 		case DIFF_MODE.PREVIOUS: console.log('Show differences - both previous and next cube'); break;
 		case DIFF_MODE.BOTH: console.log('Hide differences'); break;
 	}
+};
+
+export const playing_showState = () => {
+	const { steps, index, len } = STATE.playing.getDisplayInfo();
+	const s = steps.slice(0, index) + highlightMagenta.replace('Q', steps.slice(index, index + len)) + steps.slice(index + len);
+	console.log('Playing steps: ' + s);
+	console.log('Press CTRL+F5 to end, PG UP / PG DOWN / HOME / END to play forward or backward');
 };

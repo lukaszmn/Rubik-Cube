@@ -13,6 +13,7 @@ export const movUserToKey = steps => steps.replace(/'/, '_');
 export const movKeyToUser = steps => steps.replace(/_/, "'");
 
 /**
+ * Returns movements in reverse order with reverse steps, e.g. "RU'D" -> "D'UR'"
  * @param {string} steps
  * @return {string}
  */
@@ -21,6 +22,9 @@ export const reverseMovements = steps => {
 	for (let i = steps.length - 1; i >= 0; --i) {
 		if (steps[i] === "'") continue;
 		res += steps[i];
+		if (steps[i] === ' ')
+			continue;
+
 		const isReverse = (i + 1 < steps.length && steps[i + 1] === "'");
 		if (!isReverse)
 			res += "'";
@@ -54,4 +58,24 @@ export const expandMovements = steps => {
 	}
 
 	return res;
+};
+
+/**
+ * @param {string} steps
+ * @return {number[]}
+ */
+export const getStepNumberToStringIndexMap = steps => {
+	const map = [];
+
+	let stepNumber = 0;
+	steps = movKeyToUser(steps);
+	for (let stringIndex = 0; stringIndex < steps.length; ++stringIndex) {
+		const c = steps[stringIndex];
+		if (c === '_' || c === "'" || c === ' ')
+			continue;
+		map[stepNumber] = stringIndex;
+		++stepNumber;
+	}
+
+	return map;
 };

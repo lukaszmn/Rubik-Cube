@@ -37,13 +37,21 @@ process.stdin.on('keypress', (str, key) => {
 	if (key.shift && keyName.length === 1)
 		keyName = keyName.toUpperCase();
 
+	// this is CTRL+F5...
+	if (key.code === '[15^') {
+		keyName = 'f5';
+		key.ctrl = true;
+	}
+
 	// console.log(keyName, str, key);
 
 	switch (STATE.mode) {
 		case MODE.BROWSE:
 		case MODE.RECORD:
 		case MODE.ROTATED_MOVEMENTS:
-			processKey(keyName, key.shift);
+		case MODE.ROTATED_MOVEMENTS_PLAY:
+		case MODE.RECORDED_MOVEMENTS_PLAY:
+			processKey(keyName, key.shift, key.ctrl);
 			break;
 
 		case MODE.EDIT:

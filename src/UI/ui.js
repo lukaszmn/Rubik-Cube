@@ -6,7 +6,8 @@ export {
 	main_showHelp,
 	recording_started, recording_summary, recording_answered,
 	rotations_started, rotations_formula,
-	diffs_showMode
+	diffs_showMode,
+	playing_showState
 } from './terminal/terminal-ui';
 
 export { solverInterface } from './terminal/solver-interface';

@@ -1,6 +1,7 @@
 import { cloneCube } from '../cube-utils/clone-cube';
 import * as CubeTypes from '../cube-utils/identifier-cube';
 import { getIdentifierCube } from '../cube-utils/identifier-cube';
+import { StepsPlayer } from '../feats/steps-player';
 
 /**
  * @typedef StateMode
@@ -11,6 +12,8 @@ import { getIdentifierCube } from '../cube-utils/identifier-cube';
  * @property {StateModeValue} OPTIMIZE_CUSTOM
  * @property {StateModeValue} RECORD
  * @property {StateModeValue} ROTATED_MOVEMENTS
+ * @property {StateModeValue} ROTATED_MOVEMENTS_PLAY
+ * @property {StateModeValue} RECORDED_MOVEMENTS_PLAY
  */
 /**
  * @typedef StateModeValue
@@ -27,6 +30,8 @@ export const MODE = {
 	OPTIMIZE_CUSTOM: 5,
 	RECORD: 6,
 	ROTATED_MOVEMENTS: 7,
+	ROTATED_MOVEMENTS_PLAY: 8,
+	RECORDED_MOVEMENTS_PLAY: 9,
 };
 
 /**
@@ -63,6 +68,7 @@ export const DIFF_MODE = {
  * @property {boolean} cellLabels
  * @property {MovementForRotation} movementForRotation
  * @property {number} animationSpeed
+ * @property {StepsPlayer} playing
  */
 /**
  * @type {State}
@@ -81,6 +87,7 @@ export const STATE = {
 	cellLabels: true,
 	movementForRotation: { movements: '', rotations: '' },
 	animationSpeed: 30,
+	playing: StepsPlayer,
 };
 
 /**

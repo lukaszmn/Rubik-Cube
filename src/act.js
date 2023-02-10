@@ -18,12 +18,10 @@ export const act = async (cube, showSteps, steps) => {
 	const firstCube = showPreviousCube ? cloneCube(cube) : undefined;
 	let previousCube = firstCube;
 
-	steps = expandMovements(steps);
+	steps = expandMovements(steps).replace(/ /g, '');
 
 	for (let i = 0; i < steps.length; ++i) {
 		let mov = steps[i];
-		if (mov === ' ')
-			continue;
 
 		if (i + 1 < steps.length && steps[i + 1] === "'") {
 			++i;
@@ -47,14 +45,14 @@ export const act = async (cube, showSteps, steps) => {
 					displayCurrentCube({ animate: cubeAnim });
 
 					printDiffs(previousCube, cubeAnim);
+					await sleep(STATE.animationSpeed);
 				} else if (showSteps === 'summary' && i === steps.length - 1) {
 					redrawWithTitle('Movements: ' + steps);
 					displayCurrentCube({ animate: cubeAnim });
 
 					printDiffs(firstCube, cubeAnim);
+					await sleep(STATE.animationSpeed);
 				}
-
-				await sleep(STATE.animationSpeed);
 			}
 		} else {
 			if (showSteps === 'all') {

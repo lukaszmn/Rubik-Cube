@@ -411,7 +411,10 @@ const colorizeWithDigits = (lines, data, useColor) => lines.map(line => {
 const getCell = label => {
 	if (STATE.cellLabels || label === ' ')
 		return label;
-	return STATE.mode === MODE.BROWSE ? '█' : '▌';
+	return (
+		STATE.mode === MODE.BROWSE || STATE.mode === MODE.ROTATED_MOVEMENTS ||
+		STATE.mode === MODE.ROTATED_MOVEMENTS_PLAY || STATE.mode === MODE.RECORDED_MOVEMENTS_PLAY
+	) ? '█' : '▌';
 };
 
 /**
