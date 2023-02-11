@@ -99,7 +99,7 @@ export const editor_showHints = () => {
 	console.log(
 		'               ' +
 		'| R/G/B/O/W/Y/- - place color, with SHIFT - color entire face, repeat key for more modes ' +
-		'| = - reset cube ' +
+		'| =/+ - reset/clear cube ' +
 		'| CTRL + L/S - load/save state'
 	);
 	console.log();

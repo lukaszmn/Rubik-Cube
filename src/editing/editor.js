@@ -301,6 +301,10 @@ export const processKeyInEdit = (keyName, shift, ctrl) => {
 			STATE.c = readCube(targetCube);
 			break;
 
+		case '+':
+			STATE.c = readCube(clearedCube);
+			break;
+
 		case 's':
 			if (ctrl) {
 				const data = {
@@ -374,3 +378,13 @@ const getValidCursorPosition = (cursorX, cursorY, direction) => {
  * @typedef Direction
  * @type { 'left' | 'right' | 'up' | 'down' }
  */
+
+const clearedCube = [
+	'Y',                  // 0
+	' - - - - - - - -',   // 1
+	'--- --- --- ---',    // 2
+	'-B- -R- -G- -O-',    // 3
+	'--- --- --- ---',    // 4
+	' - - - - - - - -',   // 5
+	'W',                  // 6
+];

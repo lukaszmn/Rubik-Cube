@@ -102,7 +102,7 @@ export const processKey = async (keyName, shift, ctrl) => {
 			if (!ctrl) {
 				const msg = 'Perform moves.\nType movements (UDLRFB udlrfb MES xyz) or saved recording # or reverse saved (e.g. 1\'): ';
 				askQuestion(msg, answer => {
-					act(STATE.c, 'summary', answer);
+					act(STATE.c, 'all', answer);
 					STATE.history.push(cloneCube(STATE.c));
 					STATE.needsClearScreen = true;
 				});
@@ -228,7 +228,7 @@ export const processKey = async (keyName, shift, ctrl) => {
 
 	const savedRecordingForKey = STATE.savedRecordings.find(x => x.key === keyName);
 	if (savedRecordingForKey) {
-		await act(STATE.c, 'summary', savedRecordingForKey.movements);
+		await act(STATE.c, 'all', savedRecordingForKey.movements);
 		STATE.history.push(cloneCube(STATE.c));
 		STATE.needsClearScreen = true;
 		return;
