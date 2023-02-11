@@ -135,6 +135,8 @@ export const editor_showValidation = res => {
 			s += ' | Too many corners or edges permutated';
 		if (res.permutations.info.illegalColors)
 			s += ` | Piece contains invalid colors: ${res.permutations.info.illegalColors}`;
+		if (res.permutations.info.duplicatedCenters)
+			s += ' | Duplicated centers';
 	}
 
 	s += ' - ';

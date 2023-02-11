@@ -59,7 +59,8 @@ export const clearScreen = () => {
 export const logAndClearLine = s => {
 	const width = process.stdout.columns - 1;
 	const spaces = ' '.repeat(width);
-	s = (s + spaces).slice(0, width);
+	const sWithoutCodes = s.replace(/\x1B[^m]+m/g, '');
+	s = (s + spaces).slice(0, width + s.length - sWithoutCodes.length);
 	console.log(s);
 };
 

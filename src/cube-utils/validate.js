@@ -65,6 +65,7 @@ const getPermutationCounts = cube => {
 		U: cube.U[1][1],
 		D: cube.D[1][1],
 	};
+
 	/** @type {OppositeColors} */
 	const oppositeColors = { 'W': '', 'R': '', 'G': '', 'B': '', 'O': '', 'Y': '', '-': '+' };
 	oppositeColors[faceColors.F] = faceColors.B;
@@ -135,6 +136,7 @@ const getPermutationCounts = cube => {
 	const countEdges = getEdgeSwaps(oppositeColors, edges);
 	const countParity = getPermutationsParity(corners, edges);
 	const illegalColors = getIllegalColors(oppositeColors, corners, edges);
+	const duplicatedCenters = getDuplicatedCenters(faceColors);
 
 	/** @type {ValidatePermutations} */
 	const res = {
@@ -142,9 +144,10 @@ const getPermutationCounts = cube => {
 		edges: countEdges,
 		parity: countParity,
 		illegalColors: illegalColors,
+		duplicatedCenters: duplicatedCenters,
 	};
 
-	const valid = res.corners === 0 && res.edges === 0 && res.parity && res.illegalColors === undefined;
+	const valid = res.corners === 0 && res.edges === 0 && res.parity && res.illegalColors === undefined && !duplicatedCenters;
 	return { valid, info: res };
 };
 
@@ -237,6 +240,18 @@ const getIllegalColors = (oppositeColors, corners, edges) => {
 };
 
 /**
+ * @param {FaceColors} faceColors
+ * @return {boolean}
+ */
+const getDuplicatedCenters = (faceColors) => {
+	const centers = [faceColors.B, faceColors.D, faceColors.F, faceColors.L, faceColors.R, faceColors.U].sort().join('');
+	return (
+		centers.includes('RR') || centers.includes('GG') || centers.includes('BB') ||
+		centers.includes('OO') || centers.includes('WW') || centers.includes('YY')
+	);
+};
+
+/**
  * @typedef Corner
  * @property {string} a;
  * @property {string} b;
@@ -308,4 +323,5 @@ const getIllegalColors = (oppositeColors, corners, edges) => {
  * @property {number} edges
  * @property {boolean} parity
  * @property {string | undefined} illegalColors
+ * @property {boolean} duplicatedCenters
  */
