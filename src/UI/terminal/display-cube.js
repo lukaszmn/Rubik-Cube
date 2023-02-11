@@ -252,7 +252,7 @@ const getExtraCube2 = (cube, useColor) => {
 	};
 
 	// y0-, x0-, bkg_index(1-2)
-	const backgrounds = [ [4, 6, 1], [7, 1, 1], [7, 6, 2], [7, 11, 1], [7, 17, 2], [10, 6, 1] ]
+	[ [4, 6, 1], [7, 1, 1], [7, 6, 2], [7, 11, 1], [7, 17, 2], [10, 6, 1] ]
 		// sort by Y axis ascending, X axis descending
 		.sort((a, b) => a[0] === b[0] ? b[1] - a[1] : a[0] - b[0])
 		.forEach(bkg => {

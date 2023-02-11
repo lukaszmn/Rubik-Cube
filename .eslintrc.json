@@ -36,5 +36,8 @@
         "camelcase": "off",
         "simple-import-sort/imports": "error",
         "jsdoc/no-undefined-types": 1
+    },
+    "globals": {
+        "NodeJS": true
     }
 }

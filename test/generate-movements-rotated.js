@@ -2,7 +2,7 @@ import { getMovementForRotations } from '../src/feats/movements-rotated';
 
 /* eslint camelcase: "off" */
 
-const test = async () => {
+const test = () => {
 	const rotations = ['y'];
 	const keys = Array.from('UDLRFBMES');
 
@@ -13,7 +13,7 @@ const test = async () => {
 		// console.log(`Rotation: ${rotation}`);
 
 		for (const key of keys) {
-			let found = await getMovementForRotations(rotation, key);
+			let found = getMovementForRotations(rotation, key);
 			if (found) {
 				res += found;
 				if (found.includes("'"))

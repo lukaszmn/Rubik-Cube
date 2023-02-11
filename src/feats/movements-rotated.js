@@ -1,4 +1,4 @@
-import { act } from '../act';
+import { actSilent } from '../act';
 import { toOneLine } from '../cube-utils/cube-converters';
 import { getIdentifierCube } from '../cube-utils/identifier-cube';
 import { movements } from '../movements';
@@ -7,14 +7,14 @@ import { expandMovements, movKeyToUser, reverseMovements } from '../movements-ut
 /**
  * @param {string} rotations
  * @param {string} step - single character
- * @return {Promise<string | undefined>}
+ * @return {string | undefined}
  */
-export const getMovementForRotations = async (rotations, step) => {
+export const getMovementForRotations = (rotations, step) => {
 	if (step.length !== 1)
 		throw new Error('Pass only 1 movement');
 
 	const expected = getIdentifierCube();
-	await act(expected, 'none', step);
+	actSilent(expected, step);
 	const expectedS = toOneLine(expected);
 
 	const rotationsReverse = reverseMovements(rotations);
@@ -22,7 +22,7 @@ export const getMovementForRotations = async (rotations, step) => {
 	for (const name of Object.getOwnPropertyNames(movements)) {
 		const actual = getIdentifierCube();
 		const name1 = movKeyToUser(name);
-		await act(actual, 'none', rotations + name1 + rotationsReverse);
+		actSilent(actual, rotations + name1 + rotationsReverse);
 		const actualS = toOneLine(actual);
 		if (actualS === expectedS)
 			return name1;
@@ -34,14 +34,14 @@ export const getMovementForRotations = async (rotations, step) => {
 /**
  * @param {string} rotations
  * @param {string} steps
- * @return {Promise<string>}
+ * @return {string}
  */
-export const getMovementsForRotations = async (rotations, steps) => {
+export const getMovementsForRotations = (rotations, steps) => {
 	const stepsExpanded = expandMovements(steps);
 	const movArr = Array.from(stepsExpanded);
-	const movRotated = (await Promise.all(movArr
-		.map(async c => (c === "'" || c === ' ') ? c : await getMovementForRotations(rotations, c))
-	)).join('');
+	const movRotated = movArr
+		.map(c => (c === "'" || c === ' ') ? c : getMovementForRotations(rotations, c))
+		.join('');
 	const movWithoutDoubleApostrophe = movRotated.replace(/''/g, '');
 	return movWithoutDoubleApostrophe;
 };

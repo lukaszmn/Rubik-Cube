@@ -18,20 +18,10 @@ export const act = async (cube, showSteps, steps) => {
 	const firstCube = showPreviousCube ? cloneCube(cube) : undefined;
 	let previousCube = firstCube;
 
-	steps = expandMovements(steps).replace(/ /g, '');
+	const steps2 = getMovements(steps);
 
-	for (let i = 0; i < steps.length; ++i) {
-		let mov = steps[i];
-
-		if (i + 1 < steps.length && steps[i + 1] === "'") {
-			++i;
-			mov += '_';
-		}
-
-		if (!movements[mov]) {
-			alertError(`Invalid movement "${mov}" in "${steps}"`);
-			return;
-		}
+	for (const mov of steps2) {
+		const isLast = mov === steps2[steps2.length - 1];
 
 		const visibleMovement = movKeyToUser(mov);
 
@@ -46,7 +36,7 @@ export const act = async (cube, showSteps, steps) => {
 
 					printDiffs(previousCube, cubeAnim);
 					await sleep(STATE.animationSpeed);
-				} else if (showSteps === 'summary' && i === steps.length - 1) {
+				} else if (showSteps === 'summary' && isLast) {
 					redrawWithTitle('Movements: ' + steps);
 					displayCurrentCube({ animate: cubeAnim });
 
@@ -60,7 +50,7 @@ export const act = async (cube, showSteps, steps) => {
 				displayCurrentCube({ animate: cube });
 
 				printDiffs(previousCube, cube);
-			} else if (showSteps === 'summary' && i === steps.length - 1) {
+			} else if (showSteps === 'summary' && isLast) {
 				redrawWithTitle('Movements: ' + steps);
 				displayCurrentCube({ animate: cube });
 
@@ -72,6 +62,45 @@ export const act = async (cube, showSteps, steps) => {
 
 		previousCube = showPreviousCube ? cloneCube(cube) : undefined;
 	}
+};
+
+/**
+ * @param {CubeTypes.Cube} cube
+ * @param {string} steps
+ */
+export const actSilent = (cube, steps) => {
+	const steps2 = getMovements(steps);
+
+	for (const mov of steps2)
+		movements[mov](cube);
+};
+
+/**
+ * @param {string} steps
+ * @return {string[]}
+ */
+const getMovements = steps => {
+	steps = expandMovements(steps).replace(/ /g, '');
+
+	const steps2 = [];
+
+	for (let i = 0; i < steps.length; ++i) {
+		let mov = steps[i];
+
+		if (i + 1 < steps.length && steps[i + 1] === "'") {
+			++i;
+			mov += '_';
+		}
+
+		if (!movements[mov]) {
+			alertError(`Invalid movement "${mov}" in "${steps}"`);
+			return [];
+		}
+
+		steps2.push(mov);
+	}
+
+	return steps2;
 };
 
 export const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));

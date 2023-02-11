@@ -13,8 +13,8 @@ import { getMovementsForRotations } from './feats/movements-rotated';
 import { movements } from './movements';
 import { movementsAnimated } from './movements-animated';
 import { movKeyToUser } from './movements-utils';
-import { alertInfo, askQuestion, diffs_showMode, displayCurrentCube, main_showHelp, playing_showState, recording_answered, recording_started,
-	recording_summary, redrawWithTitle, rotations_formula, rotations_started } from './UI/ui';
+import { alertInfo, askQuestion, diffs_showMode, displayCurrentCube, main_showHelp, playing_showState, recording_answered,
+	recording_started, recording_summary, redrawWithTitle, rotations_formula, rotations_started } from './UI/ui';
 
 let wasPrime = false;
 
@@ -100,7 +100,8 @@ export const processKey = async (keyName, shift, ctrl) => {
 
 		case 'f5':
 			if (!ctrl) {
-				askQuestion('Perform moves.\nType movements (UDLRFB udlrfb MES xyz) or saved recording # or reverse saved (e.g. 1\'): ', answer => {
+				const msg = 'Perform moves.\nType movements (UDLRFB udlrfb MES xyz) or saved recording # or reverse saved (e.g. 1\'): ';
+				askQuestion(msg, answer => {
 					act(STATE.c, 'summary', answer);
 					STATE.history.push(cloneCube(STATE.c));
 					STATE.needsClearScreen = true;
@@ -109,7 +110,8 @@ export const processKey = async (keyName, shift, ctrl) => {
 				STATE.mode = MODE.BROWSE;
 				STATE.needsClearScreen = true;
 			} else {
-				askQuestion('Play moves.\nType movements (UDLRFB udlrfb MES xyz) or saved recording # or reverse saved (e.g. 1\'): ', answer => {
+				const msg = 'Play moves.\nType movements (UDLRFB udlrfb MES xyz) or saved recording # or reverse saved (e.g. 1\'): ';
+				askQuestion(msg, answer => {
 					STATE.mode = MODE.RECORDED_MOVEMENTS_PLAY;
 					STATE.playing.init(STATE.c, answer);
 					playing_showState();
@@ -261,11 +263,13 @@ export const processKey = async (keyName, shift, ctrl) => {
 		if (STATE.mode === MODE.ROTATED_MOVEMENTS) {
 			if ('xyz'.includes(movKey[0]))
 				STATE.movementForRotation.rotations += visibleMovement;
-			const steps = await getMovementsForRotations(STATE.movementForRotation.rotations, STATE.movementForRotation.movements);
+			const steps = getMovementsForRotations(STATE.movementForRotation.rotations, STATE.movementForRotation.movements);
 			rotations_formula(steps);
 		}
 
 		if (STATE.mode === MODE.ROTATED_MOVEMENTS_PLAY || STATE.mode === MODE.RECORDED_MOVEMENTS_PLAY) {
+			if ('xyz'.includes(movKey[0]))
+				STATE.playing.rotations += visibleMovement;
 			playing_showState();
 		}
 

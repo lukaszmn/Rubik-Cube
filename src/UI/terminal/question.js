@@ -40,8 +40,11 @@ export const question = (prompt, callback) => {
 			process.stdin.setRawMode(true);
 		STATE.typingMode = false;
 
-		// show hex codes
-		// console.log('[[[' + Array.from(answer).map(c => c.charCodeAt(0) < 128 ? c.charCodeAt(0).toString(16) : encodeURIComponent(c).replace(/\%/g,'').toLowerCase()).join(' ') + ']]]');
+		/* show hex codes
+		console.log('[[[' + Array.from(answer)
+			.map(c => c.charCodeAt(0) < 128 ? c.charCodeAt(0).toString(16) : encodeURIComponent(c).replace(/\%/g,'').toLowerCase())
+			.join(' ') + ']]]');
+		*/
 
 		callback(answer);
 	});
