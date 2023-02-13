@@ -220,5 +220,5 @@ export const playing_showState = () => {
 	const { steps, index, len } = STATE.playing.getDisplayInfo();
 	const s = steps.slice(0, index) + highlightMagenta.replace('Q', steps.slice(index, index + len)) + steps.slice(index + len);
 	console.log('Playing steps: ' + s);
-	console.log('Press CTRL+F5 to end, PG UP / PG DOWN / HOME / END to play forward or backward');
+	console.log('Press CTRL+F5 to end, PG UP / PG DOWN / HOME / END to play forward or backward, CTRL+F6 Rotationless on/off');
 };

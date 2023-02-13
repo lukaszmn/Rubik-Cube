@@ -43,6 +43,12 @@ process.stdin.on('keypress', (str, key) => {
 		key.ctrl = true;
 	}
 
+	// this is CTRL+F6...
+	if (key.code === '[17^') {
+		keyName = 'f6';
+		key.ctrl = true;
+	}
+
 	// console.log(keyName, str, key);
 
 	switch (STATE.mode) {

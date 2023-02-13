@@ -7,7 +7,6 @@ const test = () => {
 	const keys = Array.from('UDLRFBMES');
 
 	let res = '';
-	console.log('Testing rotations');
 
 	for (const rotation of rotations) {
 		// console.log(`Rotation: ${rotation}`);
@@ -31,7 +30,8 @@ const test = () => {
 	if (res !== "UDBFLRS'EM")
 		throw new Error('Invalid rotated movements: ' + res);
 
-	console.log('-> OK');
 };
 
+console.log('Testing rotations');
 test();
+console.log('  -> OK');

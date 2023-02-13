@@ -243,7 +243,7 @@ const getIllegalColors = (oppositeColors, corners, edges) => {
  * @param {FaceColors} faceColors
  * @return {boolean}
  */
-const getDuplicatedCenters = (faceColors) => {
+const getDuplicatedCenters = faceColors => {
 	const centers = [faceColors.B, faceColors.D, faceColors.F, faceColors.L, faceColors.R, faceColors.U].sort().join('');
 	return (
 		centers.includes('RR') || centers.includes('GG') || centers.includes('BB') ||

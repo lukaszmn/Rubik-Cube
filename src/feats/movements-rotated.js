@@ -45,3 +45,24 @@ export const getMovementsForRotations = (rotations, steps) => {
 	const movWithoutDoubleApostrophe = movRotated.replace(/''/g, '');
 	return movWithoutDoubleApostrophe;
 };
+
+/**
+ * @param {string} steps
+ * @return {string}
+ */
+export const getRotationless = steps => {
+	// find first occurrence of x/y/z
+	const positions = ['x', 'y', 'z'].map(c => steps.indexOf(c)).filter(i => i !== -1);
+	if (positions.length === 0)
+		return steps;
+
+	const pos = Math.min(...positions);
+	const len = (pos + 1 < steps.length && steps[pos + 1] === "'") ? 2 : 1;
+
+	const stepsLeft = steps.slice(0, pos).trimEnd();
+	const reverseRotation = steps[pos] + (len === 1 ? "'" : '');
+	const stepsRight = getRotationless(steps.slice(pos + len));
+	const stepsRightRotationless = getMovementsForRotations(reverseRotation, stepsRight);
+	// console.log({steps, stepsLeft, reverseRotation, stepsRight, stepsRightRotationless});
+	return stepsLeft + stepsRightRotationless;
+};

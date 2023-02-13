@@ -2,16 +2,18 @@ import { cloneCube } from '../cube-utils/clone-cube';
 import { getIdentifierCube } from '../cube-utils/identifier-cube';
 import * as CubeTypes from '../cube-utils/identifier-cube';
 import { expandMovements, getStepNumberToStringIndexMap, reverseMovements } from '../movements-utils';
-import { getMovementsForRotations } from './movements-rotated';
+import { getMovementsForRotations, getRotationless } from './movements-rotated';
 
 export const StepsPlayer = {
 
 	_startCube: getIdentifierCube(),
 	_steps: '',
+	_stepsOriginal: '',
 	_index: 0,
 	_length: 0,
 	/** @type {string} list of rotations to apply to steps */
 	rotations: '',
+	_rotationless: false,
 
 	/**
 	 * @param {CubeTypes.Cube} cube
@@ -19,10 +21,11 @@ export const StepsPlayer = {
 	 */
 	init: function(cube, movements) {
 		this._startCube = cloneCube(cube);
-		this._steps = ' ' + expandMovements(movements);
+		this._steps = this._stepsOriginal = ' ' + expandMovements(movements);
 		this._index = -1;
 		this._length = getStepNumberToStringIndexMap(this._steps).length;
 		this.rotations = '';
+		this._rotationless = false;
 	},
 
 	/** @return {string | undefined} */
@@ -49,6 +52,19 @@ export const StepsPlayer = {
 	/** @return {string | undefined} */
 	goToEnd: function() {
 		return this._getMovementsDiff(() => this._index = this._length - 1);
+	},
+
+	/** @return {string | undefined} Steps that unwind cube to the first index, execute them silently */
+	toggleRotationless: function() {
+		const undo = this.goToStart();
+		this._rotationless = !this._rotationless;
+		if (this._rotationless)
+			this._steps = getRotationless(this._stepsOriginal);
+		else
+			this._steps = this._stepsOriginal;
+
+		this._length = getStepNumberToStringIndexMap(this._steps).length;
+		return undo;
 	},
 
 	/** @return {{ steps: string, index: number, len: number }} */

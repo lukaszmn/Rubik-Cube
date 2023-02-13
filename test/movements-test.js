@@ -228,4 +228,4 @@ test_checkLocations_no_duplicates();
 test_checkMovements_constraints();
 test_checkMovements_data();
 
-console.log('-> OK');
+console.log('  -> OK');

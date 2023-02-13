@@ -108,15 +108,31 @@ export const processKey = async (keyName, shift, ctrl) => {
 				});
 			} else if (STATE.mode === MODE.RECORDED_MOVEMENTS_PLAY) {
 				STATE.mode = MODE.BROWSE;
+				redrawWithTitle();
+				displayCurrentCube();
 				STATE.needsClearScreen = true;
 			} else {
 				const msg = 'Play moves.\nType movements (UDLRFB udlrfb MES xyz) or saved recording # or reverse saved (e.g. 1\'): ';
 				askQuestion(msg, answer => {
 					STATE.mode = MODE.RECORDED_MOVEMENTS_PLAY;
 					STATE.playing.init(STATE.c, answer);
+					redrawWithTitle();
+					displayCurrentCube();
 					playing_showState();
 					STATE.needsClearScreen = true;
 				});
+			}
+			break;
+
+		case 'f6':
+			if (ctrl && STATE.mode === MODE.RECORDED_MOVEMENTS_PLAY) {
+				const steps = STATE.playing.toggleRotationless();
+				if (steps)
+					await act(STATE.c, 'none', steps);
+				redrawWithTitle();
+				displayCurrentCube();
+				playing_showState();
+				STATE.needsClearScreen = true;
 			}
 			break;
 

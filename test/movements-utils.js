@@ -1,5 +1,7 @@
 import { movUserToKey, reverseMovements } from '../src/movements-utils';
 
+console.log('Testing movements-utils');
+
 const reverseMovementsTests = () => {
 	const cases = [
 		["RU'D", "D'UR'"],
@@ -28,3 +30,5 @@ const movUserToKeyTests = () => {
 
 reverseMovementsTests();
 movUserToKeyTests();
+
+console.log('  -> OK');
