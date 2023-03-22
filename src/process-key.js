@@ -133,6 +133,10 @@ export const processKey = async (keyName, shift, ctrl) => {
 				displayCurrentCube();
 				playing_showState();
 				STATE.needsClearScreen = true;
+			} else if (!ctrl) {
+				STATE.mode = MODE.OPTIMIZE_SOURCE;
+				STATE.needsClearScreen = true;
+				processKeyInEdit(undefined, false, false);
 			}
 			break;
 
@@ -178,12 +182,6 @@ export const processKey = async (keyName, shift, ctrl) => {
 					STATE.needsClearScreen = true;
 				}
 			}
-			break;
-
-		case 'f6':
-			STATE.mode = MODE.OPTIMIZE_SOURCE;
-			STATE.needsClearScreen = true;
-			processKeyInEdit(undefined, false, false);
 			break;
 
 		case 'f7':

@@ -14,19 +14,26 @@ const options = [
 loggers: { step: (step, solutionsCount, queueSize)=>{}, progress: percent=>{}, stepSolutions: newSolutionsCount=>{} }
 */
 
-/** @type {NodeJS.HRTime[]} */
+/** @type {bigint[]} Key: string, value: bigint */
 export const timers = [];
+// PERFORMANCE: process.hrtime called thousands times takes a lot of time! Exclude them in production
+let timersInTimersStart = BigInt(0);
+let timersInTimersEnd = BigInt(0);
 
 /** @param {string} index */
 const _start = index => {
-	timers[index] = timers[index] || 0;
-	timers['t-_' + index] = process.hrtime();
+	// const _time = process.hrtime.bigint();
+	timers[index] = timers[index] || BigInt(0);
+	timers['t-_' + index] = process.hrtime.bigint();
+	// timersInTimersStart += process.hrtime.bigint() - _time;
 };
 
 /** @param {string} index */
 const _end = index => {
-	timers[index] += process.hrtime(timers['t-_' + index])[1] / 1000000.0;
+	// const _time = process.hrtime.bigint();
+	timers[index] += process.hrtime.bigint() - timers['t-_' + index];
 	delete timers['t-_' + index];
+	// timersInTimersEnd += process.hrtime.bigint() - _time;
 };
 
 
@@ -57,7 +64,8 @@ export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 	/** @type {SolverSolution[]} */
 	const solutions = [];
 	const targetInOneLineRegex = new RegExp('^' + toOneLine(targetCube).replace(/-/g, '.') + '$');
-	// const targetInOneLine = toOneLine(targetCube);
+	const targetInOneLine = toOneLine(targetCube);
+	const startTime = process.hrtime.bigint();
 
 	let stepNumber = 0;
 	while (++stepNumber <= maxSteps) {
@@ -78,25 +86,29 @@ export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 			// for (const option of options) {
 				const option = options[optionIndex];
 
-				_start('2 000 11 222');
-				// 000 11 222 33 444 55
-				if (false && step.path.length > 0 && +step.path[step.path.length - 1] === optionIndex) {
-					if (optionIndex === 1 || optionIndex === 3 || optionIndex === 5) {
-						_end('2 000 11 222');
-						continue;
+				if (false) {
+					_start('2 000 11 222');
+					// 000 11 222 33 444 55
+					if (step.path.length > 0 && +step.path[step.path.length - 1] === optionIndex) {
+						if (optionIndex === 1 || optionIndex === 3 || optionIndex === 5) {
+							_end('2 000 11 222');
+							continue;
+						}
+						if ((optionIndex === 0 || optionIndex === 2 || optionIndex === 4)
+							&& step.path.length > 1 && +step.path[step.path.length - 2] === optionIndex
+						) {
+							_end('2 000 11 222');
+							continue;
+						}
 					}
-					if ((optionIndex === 0 || optionIndex === 2 || optionIndex === 4)
-						&& step.path.length > 1 && +step.path[step.path.length - 2] === optionIndex
-					) {
-						_end('2 000 11 222');
-						continue;
-					}
+					_end('2 000 11 222');
 				}
-				_end('2 000 11 222');
 
 				_start('3 cacheTransform');
 				const newCubeArr = cacheTransform(movementsCache, step.cubeArr, option.name);
+				// V8 aggressively optimizes functions called many times, so calling cacheTransform() instead of inlining it is faster
 				_end('3 cacheTransform');
+
 				_start('4 newCubeArr.join');
 				const newCubeStr = newCubeArr.join('');
 				// console.log(step.cube, option.name, newCube);
@@ -106,7 +118,7 @@ export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 
 				_start('5 if stepNumber<maxSteps');
 				if (stepNumber !== maxSteps) {
-					_start('31 create newStep');
+					_start(' 51 create newStep');
 					/** @type {SolverStep} */
 					const newStep = {
 						path: newPath,
@@ -114,31 +126,32 @@ export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 						cubeStr: newCubeStr,
 						// previousCubes: [...step.previousCubes, step.cube],
 					};
-					_end('31 create newStep');
+					_end(' 51 create newStep');
 
-					_start('32 exists newCubeStr');
+					_start(' 52 exists newCubeStr');
 					const res = allPreviousCubes[newCubeStr];
-					_end('32 exists newCubeStr');
+					_end(' 52 exists newCubeStr');
 					// if (newStep.previousCubes.includes(newCube))
 					if (res) {
 						_end('5 if stepNumber<maxSteps');
 						continue;
 					}
 
-					_start('33 push newStep');
+					_start(' 53 push newStep');
 					newSteps.push(newStep);
-					_end('33 push newStep');
-					_start('34 add newCubeStr field');
+					_end(' 53 push newStep');
+					_start(' 54 add newCubeStr field');
 					allPreviousCubes[newCubeStr] = true;
-					_end('34 add newCubeStr field');
+					_end(' 54 add newCubeStr field');
 				}
-				_end('5 if step<maxSteps');
+				_end('5 if stepNumber<maxSteps');
 
 				_start('6 regex');
-				const res = targetInOneLineRegex.test(newCubeStr);
+				// const res = targetInOneLineRegex.test(newCubeStr);
+				// TODO: if no "-" then simply string compare
 				_end('6 regex');
-				if (res) {
-				// if (targetInOneLine === newCube) {
+				// if (res) {
+				if (targetInOneLine === newCubeStr) {
 					_start('7 solution');
 					const indicesPath = Array.from(newPath);
 					const path = indicesPath
@@ -194,6 +207,14 @@ export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 		_end('10 steps=newSteps.filter');
 	}
 
+	timers['0 timers in timers start'] = timersInTimersStart;
+	timers['0 timers in timers end'] = timersInTimersEnd;
+
+	const endTime = process.hrtime.bigint();
+	const durationSeconds = Number((endTime - startTime) / 1000000000n);
+	if (loggers.duration)
+		loggers.duration(durationSeconds);
+
 	return solutions;
 };
 
@@ -232,19 +253,20 @@ const cacheMovement = (movementsCache, name, movements) => {
 		throw new Error('Failed to cache movements: ' + movements);
 };
 
-const cacheTransform = (movementsCache, cubeOneLineArray, movementName) => {
+function cacheTransform(movementsCache, cubeOneLineArray, movementName) {
+	_start(' 30 cacheTransform: get');
 	const transform = movementsCache[movementName];
+	_end(' 30 cacheTransform: get');
 
-	_start('20 cacheTransform: clone');
-	const after = [];
-	for (let i = 0, l = cubeOneLineArray.length; i < l; ++i)
-		after[i] = cubeOneLineArray[i];
-	_end('20 cacheTransform: clone');
+	_start(' 30 cacheTransform: clone');
+	const after = cubeOneLineArray.slice();
+	_end(' 30 cacheTransform: clone');
 
-	_start('21 cacheTransform: edit');
+	_start(' 31 cacheTransform: edit');
 	for (const t of transform)
 		after[t[0]] = cubeOneLineArray[t[1]];
-	_end('21 cacheTransform: edit');
+	_end(' 31 cacheTransform: edit');
+
 	return after;
 };
 
@@ -273,6 +295,7 @@ const cacheTransform = (movementsCache, cubeOneLineArray, movementName) => {
  * @property {LoggersStepCallback} step
  * @property {LoggersProgressCallback} progress
  * @property {LoggersStepSolutionsCallback} stepSolutions
+ * @property {LoggersDurationCallback} duration
  */
 /**
  * @callback LoggersStepCallback
@@ -288,4 +311,8 @@ const cacheTransform = (movementsCache, cubeOneLineArray, movementName) => {
 /**
  * @callback LoggersStepSolutionsCallback
  * @param {number} newSolutionsCount
+ */
+/**
+ * @callback LoggersDurationCallback
+ * @param {number} durationSeconds
  */

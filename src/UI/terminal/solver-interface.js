@@ -17,20 +17,20 @@ export const solverInterface = async () => {
 		{ name: '2right', movements: "yy" },
 		// { name: 'FRU', movements: "FRU R'U'F'" },
 		// { name: 'FRU2', movements: "FUR U'R'F'" },
-		{ name: 'RUR', movements: "RUR'U RUUR'" },
-		{ name: 'rogi', movements: "RB' RFFR' BR FFRR" },
-		{ name: 'koniec-lewo', movements: "FFU LR' FF L'R UFF" },
-		{ name: 'koniec-prawo', movements: "FFU' LR' FF L'R U'FF" },
+		// { name: 'RUR', movements: "RUR'U RUUR'" },
+		// { name: 'rogi', movements: "RB' RFFR' BR FFRR" },
+		// { name: 'koniec-lewo', movements: "FFU LR' FF L'R UFF" },
+		// { name: 'koniec-prawo', movements: "FFU' LR' FF L'R U'FF" },
 		// { name: 'RH', movements: "RUR'U'" },
 		// { name: 'LH', movements: "L'U'LU" },
-		// { name: 'R', movements: "R" },
-		// { name: "R'", movements: "R'" },
+		{ name: 'R', movements: "R" },
+		{ name: "R'", movements: "R'" },
 		{ name: 'U', movements: "U" },
 		{ name: "U'", movements: "U'" },
-		// { name: 'L', movements: "L" },
-		// { name: "L'", movements: "L'" },
-		// { name: 'F', movements: "F" },
-		// { name: "F'", movements: "F'" },
+		{ name: 'L', movements: "L" },
+		{ name: "L'", movements: "L'" },
+		{ name: 'F', movements: "F" },
+		{ name: "F'", movements: "F'" },
 	];
 
 	while (true) {
@@ -69,6 +69,7 @@ const showAndSolve = () => {
 		),
 		progress: (percent, newSolutionsCounter) => console.log(`  ${percent}% (new solutions: ${newSolutionsCounter})`),
 		stepSolutions: newSolutionsCounter => console.log(`  Found new ${newSolutionsCounter} solution(s)`),
+		duration: durationSecond => console.log(`Time: ${durationSecond} seconds`),
 	};
 
 	console.time('test');
