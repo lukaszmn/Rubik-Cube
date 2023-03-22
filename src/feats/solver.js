@@ -49,8 +49,7 @@ export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 	/** @type {SolverStep[]} */
 	let steps = [{
 		path: '',
-		cubeArr: Array.from(toOneLine(startCube)),
-		cubeStr: toOneLine(startCube),
+		cubeArr: stringLineToNumberArray(toOneLine(startCube)),
 		// previousCubes: [],
 	}];
 
@@ -63,8 +62,15 @@ export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 
 	/** @type {SolverSolution[]} */
 	const solutions = [];
-	const targetInOneLineRegex = new RegExp('^' + toOneLine(targetCube).replace(/-/g, '.') + '$');
 	const targetInOneLine = toOneLine(targetCube);
+	const targetInOneLineRegex = new RegExp('^' + targetInOneLine.replace(/-/g, '.') + '$');
+	const targetNumbers = stringLineToNumberArray(targetInOneLine);
+	const targetHashCode = numberArrayToHashCode(targetNumbers);
+	const containsAnyCells = targetInOneLine.includes('-');
+	// PERFORMANCE - suggestion: store as array of bytes, but much more complex transforms
+	// -0 B1 R2 G3 O4 W5 Y6 -> 3 bits per cell
+	// there are 9*6 = 54 cells. Require 162 bits, or 21 bytes
+
 	const startTime = process.hrtime.bigint();
 
 	let stepNumber = 0;
@@ -110,11 +116,14 @@ export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 				_end('3 cacheTransform');
 
 				_start('4 newCubeArr.join');
-				const newCubeStr = newCubeArr.join('');
 				// console.log(step.cube, option.name, newCube);
 
-				const newPath = step.path + optionIndex;
+				const newPath = step.path + ',' + optionIndex;
 				_end('4 newCubeArr.join');
+
+				_start('4.5 hash');
+				const newHash = numberArrayToHashCode(newCubeArr);
+				_end('4.5 hash');
 
 				_start('5 if stepNumber<maxSteps');
 				if (stepNumber !== maxSteps) {
@@ -123,37 +132,45 @@ export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 					const newStep = {
 						path: newPath,
 						cubeArr: newCubeArr,
-						cubeStr: newCubeStr,
 						// previousCubes: [...step.previousCubes, step.cube],
 					};
 					_end(' 51 create newStep');
 
 					_start(' 52 exists newCubeStr');
-					const res = allPreviousCubes[newCubeStr];
+					const res = allPreviousCubes[newHash];
 					_end(' 52 exists newCubeStr');
 					// if (newStep.previousCubes.includes(newCube))
 					if (res) {
-						_end('5 if stepNumber<maxSteps');
-						continue;
+						if (res.some(x => compareArrays(x, newCubeArr))) {
+							_end('5 if stepNumber<maxSteps');
+							continue;
+						}
+
+						_start(' 54a add newCubeStr field');
+						res.push(newCubeArr);
+						_end(' 54a add newCubeStr field');
+					} else {
+						_start(' 54b add newCubeStr field');
+						allPreviousCubes[newHash] = [newCubeArr];
+						_end(' 54b add newCubeStr field');
 					}
 
 					_start(' 53 push newStep');
 					newSteps.push(newStep);
 					_end(' 53 push newStep');
-					_start(' 54 add newCubeStr field');
-					allPreviousCubes[newCubeStr] = true;
-					_end(' 54 add newCubeStr field');
 				}
 				_end('5 if stepNumber<maxSteps');
 
 				_start('6 regex');
-				// const res = targetInOneLineRegex.test(newCubeStr);
+				const success = containsAnyCells ?
+					targetInOneLineRegex.test(numberArrayToStringLine(newCubeArr)) :
+					targetHashCode === newHash && compareArrays(targetNumbers, newCubeArr);
 				// TODO: if no "-" then simply string compare
 				_end('6 regex');
 				// if (res) {
-				if (targetInOneLine === newCubeStr) {
+				if (success) {
 					_start('7 solution');
-					const indicesPath = Array.from(newPath);
+					const indicesPath = newPath.split(',');
 					const path = indicesPath
 						.map(index => options[+index].name)
 						.join(' ');
@@ -164,7 +181,7 @@ export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 					solutions.push({
 						path: path,
 						length: length,
-						cube: toCube(newCubeStr),
+						cube: toCube(numberArrayToStringLine(newCubeArr)),
 					});
 					++newSolutionsCounter;
 					_end('7 solution');
@@ -175,8 +192,6 @@ export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 			step.path = undefined;
 			// @ts-ignore
 			step.cubeArr = undefined;
-			// @ts-ignore
-			step.cubeStr = undefined;
 			// step.previousCubes = undefined;
 
 			_start('8 loggers.progress');
@@ -196,7 +211,7 @@ export const solve = (startCube, targetCube, options, maxSteps, loggers) => {
 		_start('10 steps=newSteps.filter');
 		if (stepNumber < maxSteps) {
 			steps = newSteps.filter(step => {
-				const indicesPath = Array.from(step.path);
+				const indicesPath = step.path.split(',');
 				const length = indicesPath
 					.map(index => options[+index].movements)
 					.join('')
@@ -270,6 +285,53 @@ function cacheTransform(movementsCache, cubeOneLineArray, movementName) {
 	return after;
 };
 
+/**
+ * Converts one-line cube that contains letters 'W', 'G' to array of numbers
+ * @param {string} cubeLine
+ * @return {number[]}
+ */
+function stringLineToNumberArray(cubeLine) {
+	const MAP = { '-': 0, 'W': 1, 'Y': 2, 'R': 3, 'G': 4, 'B': 5, 'O': 6 };
+	return Array.from(cubeLine).map(c => MAP[c]);
+}
+
+/**
+ * Converts array of numbers cube to one-line cube that contains letters 'W', 'G'
+ * @param {number[]} cubeArr
+ * @return {string}
+ */
+function numberArrayToStringLine(cubeArr) {
+	const MAP = Array.from('-WYRGBO');
+	return cubeArr.map(c => MAP[c]).join('');
+}
+
+/**
+ * Gets "hash code" for array of numbers cube
+ * @param {number[]} cubeArr
+ * @return {number}
+ */
+function numberArrayToHashCode(cubeArr) {
+	let h = 0;
+	let i = cubeArr.length;
+	while (i--)
+		h = Math.imul(31, h) + cubeArr[i] | 0;
+
+  return h;
+}
+
+/**
+ * Checks if two arrays of same length are equal. Note that the length is not checked!
+ * @param {number[]} arr1
+ * @param {number[]} arr2
+ * @return {boolean}
+ */
+function compareArrays(arr1, arr2) {
+	let i = arr1.length;
+	while (i--)
+		if (arr1[i] !== arr2[i]) return false;
+	return true;
+}
+
 // cacheMovements([{name: 'R', movements: 'R'}]);
 // console.log(movementsCache);
 // console.log(cacheTransform(before, 'R'));
@@ -279,8 +341,7 @@ function cacheTransform(movementsCache, cubeOneLineArray, movementName) {
 /**
  * @typedef SolverStep
  * @property {string} path
- * @property {string[]} cubeArr
- * @property {string} cubeStr
+ * @property {number[]} cubeArr
  */
 
 /**
