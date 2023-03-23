@@ -12,9 +12,9 @@ export const solverInterface = async () => {
 	STATE.optimize.options = [
 		// { name: 'up', movements: "x" },
 		// { name: 'down', movements: "x'" },
-		{ name: 'left', movements: "y" },
-		{ name: 'right', movements: "y'" },
-		{ name: '2right', movements: "yy" },
+		{ name: 'left', movements: "y" },		// 0
+		{ name: 'right', movements: "y'" },	// 1
+		{ name: '2right', movements: "yy" },// 2
 		// { name: 'FRU', movements: "FRU R'U'F'" },
 		// { name: 'FRU2', movements: "FUR U'R'F'" },
 		// { name: 'RUR', movements: "RUR'U RUUR'" },
@@ -23,14 +23,16 @@ export const solverInterface = async () => {
 		// { name: 'koniec-prawo', movements: "FFU' LR' FF L'R U'FF" },
 		// { name: 'RH', movements: "RUR'U'" },
 		// { name: 'LH', movements: "L'U'LU" },
-		{ name: 'R', movements: "R" },
-		{ name: "R'", movements: "R'" },
-		{ name: 'U', movements: "U" },
-		{ name: "U'", movements: "U'" },
-		{ name: 'L', movements: "L" },
-		{ name: "L'", movements: "L'" },
-		{ name: 'F', movements: "F" },
-		{ name: "F'", movements: "F'" },
+		{ name: 'R', movements: "R" },		// 3
+		{ name: "R'", movements: "R'" },	// 4
+		{ name: 'U', movements: "U" },		// 5
+		{ name: "U'", movements: "U'" },	// 6
+		{ name: 'L', movements: "L" },		// 7
+		{ name: "L'", movements: "L'" },	// 8
+		{ name: 'F', movements: "F" },		// 9
+		{ name: "F'", movements: "F'" },	// 10
+		{ name: 'B', movements: "B" },		// 11
+		{ name: "B'", movements: "B'" },	// 12
 	];
 
 	while (true) {
